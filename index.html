@@ -369,4 +369,773 @@ for(const [tab,view] of [['tabPlan','planView'],['tabLiquidity','liquidityView']
  $('tabPlan').onclick=()=>show('tabPlan');$('tabLiquidity').onclick=()=>show('tabLiquidity');$('tabAnnual').onclick=()=>show('tabAnnual');
  show('tabPlan');
 })();
-</script><script>if ("serviceWorker" in navigator && location.protocol === "https:") window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));</script></body></html>
+</script><script>if ("serviceWorker" in navigator && location.protocol === "https:") window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));</script>
+
+<!-- Finanzkompass 3.2 – Erweiterung der bestehenden öffentlichen index.html -->
+<style>
+.fk32-hero{background:#173a5a;color:white;border-radius:14px;padding:17px;margin:12px 0}
+.fk32-hero small{display:block;color:#d3e1ed}
+.fk32-hero strong{display:block;font-size:clamp(23px,6vw,34px);margin:7px 0}
+.fk32-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fk32-field{min-width:0;margin:8px 0}
+.fk32-field label{display:block;margin-bottom:5px}
+.fk32-field input,.fk32-field select{width:100%;min-width:0}
+.fk32-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e7edf3}
+.fk32-line span:last-child{font-weight:650;text-align:right}
+.fk32-tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.fk32-table{border-collapse:collapse;width:100%;min-width:850px;font-size:12px}
+.fk32-table th,.fk32-table td{padding:10px 8px;border-bottom:1px solid #e2e9f0;text-align:right;white-space:nowrap}
+.fk32-table th:first-child,.fk32-table td:first-child{text-align:left}
+.fk32-table th{background:#e8f0f7;position:sticky;top:0}
+.fk32-entry{padding:12px 0;border-bottom:1px solid #e2e9f0}
+.fk32-entry-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fk32-entry-grid .wide{grid-column:1/-1}
+.fk32-muted{font-size:12px;color:#64788b;line-height:1.5}
+.fk32-warning{background:#fff6e7;padding:12px;border-radius:10px;color:#82521e}
+.fk32-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fk32-actions button{min-height:42px}
+@media(max-width:430px){.fk32-grid{grid-template-columns:1fr 1fr}.fk32-entry-grid{grid-template-columns:1fr 1fr}}
+</style>
+
+<script>
+(function(){
+'use strict';
+
+const el = id => document.getElementById(id);
+const money = n => new Intl.NumberFormat('de-DE',{
+  style:'currency',currency:'EUR'
+}).format(Number(n)||0);
+const num = v => Math.max(0,Number(v)||0);
+const monthKey = (y,m) => y+'-'+String(m).padStart(2,'0');
+const escapeHtml = v => String(v??'').replace(/[&<>"']/g,c=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[c]));
+
+const model = state.fk32 ||= {
+  openingReserve:0,
+  minimumReserve:0,
+  mortgageBalance:null,
+  mortgageRate:null,
+  mortgagePayment:null,
+  mortgageAsOf:'2027-01',
+  fixedRateEnd:'',
+  followUpRate:null,
+  originalPrincipal:null,
+  repaymentCap:null,
+  repaymentMonth:7,
+  repaymentDay:15,
+  repaymentPolicy:'available',
+  annualRepayments:{},
+  specialExpenses:[],
+  vacationAmount:7000,
+  vacationStart:2029,
+  carRepairAnnual:0,
+  carSaleProceeds:0,
+  carLoanSettlement:0,
+  carSaleMonth:'2027-02',
+  propertySaleOn:false,
+  propertySaleYear:2030,
+  propertySaleNet:0,
+  bonusMonth:'2027-05',
+  monthlyTransferTarget:null
+};
+
+function persist(){
+  save();
+}
+
+function field(label,key,opts={}){
+  const wrap=document.createElement('div');
+  wrap.className='fk32-field';
+  const lab=document.createElement('label');
+  lab.textContent=label;
+  const input=document.createElement('input');
+  input.type=opts.type||'number';
+  if(input.type==='number'){
+    input.min=opts.min??'0';
+    input.step=opts.step??'0.01';
+  }
+  if(opts.placeholder)input.placeholder=opts.placeholder;
+  const value=model[key];
+  input.value=value===null||value===undefined?'':value;
+  input.addEventListener('change',()=>{
+    if(input.type==='number'){
+      model[key]=input.value===''?null:Number(input.value);
+      if(model[key]!==null && !Number.isFinite(model[key])){
+        model[key]=null;
+      }
+    }else{
+      model[key]=input.value;
+    }
+    persist();
+    refresh32();
+  });
+  wrap.append(lab,input);
+  return wrap;
+}
+
+function panel(title,description){
+  const p=document.createElement('section');
+  p.className='panel';
+  const h=document.createElement('h2');
+  h.textContent=title;
+  p.append(h);
+  if(description){
+    const d=document.createElement('p');
+    d.className='fk32-muted';
+    d.textContent=description;
+    p.append(d);
+  }
+  return p;
+}
+
+function line(parent,label,value){
+  const row=document.createElement('div');
+  row.className='fk32-line';
+  const a=document.createElement('span');
+  const b=document.createElement('span');
+  a.textContent=label;
+  b.textContent=value;
+  row.append(a,b);
+  parent.append(row);
+}
+
+function heading(text){
+  const h=document.createElement('h3');
+  h.textContent=text;
+  return h;
+}
+
+function groupFields(parent,items){
+  const grid=document.createElement('div');
+  grid.className='fk32-grid';
+  items.forEach(x=>grid.append(field(...x)));
+  parent.append(grid);
+}
+
+function addButton(parent,label,action){
+  const b=document.createElement('button');
+  b.type='button';
+  b.textContent=label;
+  b.onclick=action;
+  parent.append(b);
+  return b;
+}
+
+/* 1. SPARKASSENKONTO */
+const sparkPanel=panel(
+  '🏦 Sparkassenkonto · Monatsbudget',
+  'Nur Positionen, die tatsächlich dem Sparkassenkonto zugeordnet sind. Die interne Umbuchung ist keine Haushaltsausgabe.'
+);
+const sparkMonth=document.createElement('div');
+const sparkLines=document.createElement('div');
+const sparkInfo=document.createElement('p');
+sparkInfo.className='fk32-muted';
+sparkPanel.append(sparkMonth,sparkLines,sparkInfo);
+
+const sparkActions=document.createElement('div');
+sparkActions.className='fk32-actions';
+addButton(sparkActions,'Bedarf als Umbuchung übernehmen',()=>{
+  const month=el('month').value;
+  const budget=sparkBudget(month);
+  state.transfer.amount=Math.round(budget*100)/100;
+  if(el('transferAmount'))el('transferAmount').value=state.transfer.amount;
+  persist();
+  if(typeof updateTransferRecommendation==='function')
+    updateTransferRecommendation();
+  refresh32();
+});
+sparkPanel.append(sparkActions);
+
+const overview=el('planView');
+const summary=overview.querySelector('.dashboard-summary');
+if(summary)summary.after(sparkPanel);
+else overview.prepend(sparkPanel);
+
+function sparkBudget(month){
+  let total=0;
+  for(const g of groups){
+    for(const item of g.items){
+      if(accountFor(item[0])!=='second')continue;
+      if(schedule(item).frequency!=='m')continue;
+      total+=Math.max(0,amount(item,month));
+    }
+  }
+  return total;
+}
+
+function renderSpark(){
+  const month=el('month').value;
+  sparkMonth.textContent='Gewählter Monat: '+month;
+  sparkLines.replaceChildren();
+
+  let total=0;
+  let count=0;
+  for(const g of groups){
+    for(const item of g.items){
+      if(accountFor(item[0])!=='second')continue;
+      if(schedule(item).frequency!=='m')continue;
+      const value=Math.max(0,amount(item,month));
+      if(!value)continue;
+      line(sparkLines,item[1],money(value));
+      total+=value;
+      count++;
+    }
+  }
+
+  if(!count){
+    line(sparkLines,'Noch keine monatlichen Positionen zugeordnet','–');
+  }
+
+  line(sparkLines,'Monatlicher Sparkassenbedarf',money(total));
+
+  const transfer=Number(state.transfer?.amount)||0;
+  line(sparkLines,'Aktuelle monatliche Umbuchung',money(transfer));
+  line(sparkLines,'Differenz Umbuchung minus Budget',money(transfer-total));
+
+  if(model.monthlyTransferTarget!==null){
+    line(sparkLines,'Separater Zielbetrag',money(model.monthlyTransferTarget));
+    line(sparkLines,'Noch nicht zugeordnet / Puffer',
+      money(model.monthlyTransferTarget-total));
+  }
+
+  sparkInfo.textContent=
+    'Die Werte stammen aus deinen importierten Positionen und deren Kontozuordnung. '+
+    'Jährliche und vierteljährliche Zahlungen sind nicht im monatlichen Grundbedarf enthalten. '+
+    'Eine positive Differenz ist nicht automatisch frei verfügbares Geld.';
+}
+
+/* 2. PROMINENTE TILGUNGSANZEIGE */
+const payoffHero=document.createElement('div');
+payoffHero.className='fk32-hero';
+const payoffSmall=document.createElement('small');
+payoffSmall.textContent='🏡 Eigenheim · rechnerische vollständige Tilgung';
+const payoffValue=document.createElement('strong');
+payoffValue.textContent='Darlehensdaten fehlen';
+const payoffDetail=document.createElement('small');
+payoffHero.append(payoffSmall,payoffValue,payoffDetail);
+overview.prepend(payoffHero);
+
+/* 3. JAHRESPLANUNG 3.2 */
+const annualView=el('annualView');
+const oldAnnualPanels=[...annualView.children];
+oldAnnualPanels.forEach(p=>p.classList.add('hidden'));
+
+const loanPanel=panel(
+  '🏡 Eigenheim · Darlehensparameter',
+  'Die Restschuld muss zum angegebenen Monat stimmen. Ohne bestätigte Restschuld und Zinssatz wird kein Tilgungsdatum erfunden.'
+);
+groupFields(loanPanel,[
+  ['Restschuld zum Stichtag (€)','mortgageBalance'],
+  ['Stichtag der Restschuld','mortgageAsOf',{type:'month'}],
+  ['Sollzins p. a. (%)','mortgageRate',{step:'0.001'}],
+  ['Monatliche Regelrate (€)','mortgagePayment'],
+  ['Ende der Zinsbindung','fixedRateEnd',{type:'month'}],
+  ['Anschlusszins p. a. (%)','followUpRate',{step:'0.001'}],
+  ['Ursprüngliche Darlehenssumme (€)','originalPrincipal'],
+  ['Maximale Sondertilgung pro Jahr (€)','repaymentCap'],
+  ['Gewünschte Mindestreserve (€)','minimumReserve'],
+  ['Rücklagen zu Planungsbeginn (€)','openingReserve'],
+  ['Sondertilgungsmonat (1–12)','repaymentMonth',{min:1,step:1}],
+  ['Sondertilgungstag (1–28)','repaymentDay',{min:1,step:1}]
+]);
+
+const policy=document.createElement('div');
+policy.className='fk32-field';
+const policyLabel=document.createElement('label');
+policyLabel.textContent='Sondertilgungsstrategie';
+const policySelect=document.createElement('select');
+[
+  ['available','Möglichen Betrag nach Mindestreserve einsetzen'],
+  ['manual','Nur ausdrücklich geplante Beträge einsetzen'],
+  ['none','Keine Sondertilgungen']
+].forEach(([value,text])=>{
+  const o=document.createElement('option');
+  o.value=value;
+  o.textContent=text;
+  policySelect.append(o);
+});
+policySelect.value=model.repaymentPolicy;
+policySelect.onchange=()=>{
+  model.repaymentPolicy=policySelect.value;
+  persist();refresh32();
+};
+policy.append(policyLabel,policySelect);
+loanPanel.append(policy);
+
+const loanNotice=document.createElement('p');
+loanNotice.className='fk32-warning';
+loanNotice.textContent=
+  'Wichtig: Eine jährliche Sondertilgung wird im Modell erst zum gewählten '+
+  'Monat aus bis dahin vorhandenen Rücklagen geleistet. Vertragliche Termine, '+
+  'Obergrenzen und Anschlusszins bitte anhand der Darlehensunterlagen prüfen.';
+loanPanel.append(loanNotice);
+
+const scenarioPanel=panel(
+  '🎛️ Szenarien',
+  'Die zusätzliche Immobilie ist nicht das vermietete Reihenhaus. Ihr Verkauf wird ausschließlich als einmaliger Nettozufluss gerechnet.'
+);
+
+const carToggle=document.createElement('label');
+carToggle.className='check';
+const carCheck=document.createElement('input');
+carCheck.type='checkbox';
+carCheck.checked=!!state.eqaSold;
+carCheck.onchange=()=>{
+  state.eqaSold=carCheck.checked;
+  if(el('eqaSold'))el('eqaSold').checked=carCheck.checked;
+  persist();refresh32();
+};
+carToggle.append(carCheck,document.createTextNode(' Auto verkauft (bisheriges Fahrzeugszenario)'));
+scenarioPanel.append(carToggle);
+
+groupFields(scenarioPanel,[
+  ['Jährliche Reparaturen bei behaltenem Auto (€)','carRepairAnnual'],
+  ['Netto-Verkaufserlös Auto (€)','carSaleProceeds'],
+  ['Noch erforderliche Kreditablösung Auto (€)','carLoanSettlement'],
+  ['Verkaufsmonat Auto','carSaleMonth',{type:'month'}]
+]);
+
+const bonusToggle=document.createElement('label');
+bonusToggle.className='check';
+const bonusCheck=document.createElement('input');
+bonusCheck.type='checkbox';
+bonusCheck.checked=!!state.bonusOn;
+bonusCheck.onchange=()=>{
+  state.bonusOn=bonusCheck.checked;
+  if(el('bonusOn'))el('bonusOn').checked=bonusCheck.checked;
+  persist();refresh32();
+};
+bonusToggle.append(bonusCheck,document.createTextNode(' Optionalen Bonus einrechnen'));
+scenarioPanel.append(bonusToggle);
+
+const bonusHint=document.createElement('p');
+bonusHint.className='fk32-muted';
+bonusHint.textContent='Der Bonusbetrag wird weiterhin unter Grunddaten gepflegt.';
+scenarioPanel.append(bonusHint);
+
+groupFields(scenarioPanel,[
+  ['Monat des Bonus','bonusMonth',{type:'month'}]
+]);
+
+const propertyToggle=document.createElement('label');
+propertyToggle.className='check';
+const propertyCheck=document.createElement('input');
+propertyCheck.type='checkbox';
+propertyCheck.checked=!!model.propertySaleOn;
+propertyCheck.onchange=()=>{
+  model.propertySaleOn=propertyCheck.checked;
+  persist();refresh32();
+};
+propertyToggle.append(
+  propertyCheck,
+  document.createTextNode(' Zusätzliche, derzeit leerstehende Immobilie verkaufen')
+);
+scenarioPanel.append(propertyToggle);
+
+groupFields(scenarioPanel,[
+  ['Verkaufsjahr der zusätzlichen Immobilie','propertySaleYear',{min:2027,step:1}],
+  ['Netto-Verkaufserlös nach allen Kosten (€)','propertySaleNet']
+]);
+
+const expensesPanel=panel(
+  '🧾 Zentrale Sonderausgabenliste',
+  'Hier stehen nur zusätzliche Ausgaben, die noch nicht in den Monatspositionen enthalten sind. Bereits dort geplante Projekte werden nicht ein zweites Mal abgezogen.'
+);
+
+groupFields(expensesPanel,[
+  ['Urlaub pro Jahr ab dem Startjahr (€)','vacationAmount'],
+  ['Urlaub ab Jahr','vacationStart',{min:2027,step:1}]
+]);
+
+const expensesList=document.createElement('div');
+expensesPanel.append(expensesList);
+const expenseActions=document.createElement('div');
+expenseActions.className='fk32-actions';
+
+addButton(expenseActions,'+ Sonderausgabe hinzufügen',()=>{
+  model.specialExpenses.push({
+    name:'',
+    year:2027,
+    amount:0,
+    category:'Eigenheim',
+    recurring:false
+  });
+  persist();
+  renderExpenses();
+});
+expensesPanel.append(expenseActions);
+
+const tablePanel=panel(
+  '📊 Jahresübersicht und Sondertilgung',
+  'Rücklagen sind eine Modellgröße, nicht der tagesgenaue Girokontostand. Die Sondertilgung wird auf die tatsächlich verfügbare Rücklage und die vertragliche Obergrenze begrenzt.'
+);
+
+const annualStatus=document.createElement('p');
+annualStatus.className='fk32-muted';
+const annualTable=document.createElement('div');
+annualTable.className='fk32-tablewrap';
+tablePanel.append(annualStatus,annualTable);
+
+annualView.append(loanPanel,scenarioPanel,expensesPanel,tablePanel);
+
+/* Sonderausgaben */
+function renderExpenses(){
+  expensesList.replaceChildren();
+
+  model.specialExpenses.forEach((expense,index)=>{
+    const entry=document.createElement('div');
+    entry.className='fk32-entry';
+    const grid=document.createElement('div');
+    grid.className='fk32-entry-grid';
+
+    function edit(label,type,value,onChange){
+      const box=document.createElement('div');
+      box.className='fk32-field';
+      const l=document.createElement('label');
+      l.textContent=label;
+      const input=document.createElement('input');
+      input.type=type;
+      input.value=value??'';
+      if(type==='number'){
+        input.min='0';
+        input.step=label==='Jahr'?'1':'0.01';
+      }
+      input.onchange=()=>{
+        onChange(type==='number'?Number(input.value)||0:input.value);
+        persist();
+        renderAnnual32();
+      };
+      box.append(l,input);
+      return box;
+    }
+
+    grid.append(
+      edit('Bezeichnung','text',expense.name,v=>expense.name=v),
+      edit('Jahr','number',expense.year,v=>expense.year=v),
+      edit('Betrag (€)','number',expense.amount,v=>expense.amount=v)
+    );
+
+    const categoryBox=document.createElement('div');
+    categoryBox.className='fk32-field';
+    const categoryLabel=document.createElement('label');
+    categoryLabel.textContent='Kategorie / Immobilie';
+    const category=document.createElement('select');
+
+    ['Eigenheim','Vermietete Immobilie','Weitere Immobilie',
+     'Familie','Auto','Urlaub','Sonstiges'].forEach(value=>{
+      const option=document.createElement('option');
+      option.value=value;
+      option.textContent=value;
+      category.append(option);
+    });
+
+    category.value=expense.category||'Sonstiges';
+    category.onchange=()=>{
+      expense.category=category.value;
+      persist();
+    };
+    categoryBox.append(categoryLabel,category);
+    grid.append(categoryBox);
+
+    const recurring=document.createElement('label');
+    recurring.className='check';
+    const check=document.createElement('input');
+    check.type='checkbox';
+    check.checked=!!expense.recurring;
+    check.onchange=()=>{
+      expense.recurring=check.checked;
+      persist();renderAnnual32();
+    };
+    recurring.append(check,document.createTextNode(' Jährlich wiederholen'));
+
+    const remove=document.createElement('button');
+    remove.textContent='Entfernen';
+    remove.type='button';
+    remove.onclick=()=>{
+      model.specialExpenses.splice(index,1);
+      persist();renderExpenses();renderAnnual32();
+    };
+
+    entry.append(grid,recurring,remove);
+    expensesList.append(entry);
+  });
+}
+
+/* Jahresrechnung */
+function specialCost(year){
+  const vacation=year>=num(model.vacationStart)
+    ?num(model.vacationAmount):0;
+
+  const extras=model.specialExpenses.reduce((sum,e)=>{
+    const active=e.recurring
+      ?year>=Number(e.year)
+      :year===Number(e.year);
+    return sum+(active?num(e.amount):0);
+  },0);
+
+  return vacation+extras;
+}
+
+function monthlyBase(year,month){
+  const key=monthKey(year,month);
+  let result=totals(key).balance;
+
+  // totals() berücksichtigt den alten Bonus nur im Mai 2027.
+  // Bei einem anderen Szenariomonat wird er entsprechend verschoben.
+  if(state.bonusOn && model.bonusMonth!=='2027-05'){
+    if(key==='2027-05')result-=num(state.bonus);
+    if(key===model.bonusMonth)result+=num(state.bonus);
+  }
+
+  // Nur zusätzliche, noch nicht in den Monatspositionen
+  // enthaltene Autokosten bzw. Netto-Verkaufseffekte.
+  if(!state.eqaSold){
+    if(month===12)result-=num(model.carRepairAnnual);
+  }else if(key===model.carSaleMonth){
+    result+=num(model.carSaleProceeds);
+    result-=num(model.carLoanSettlement);
+  }
+
+  // Die zusätzliche Immobilie hat in diesem Modell
+  // weder laufende Mieteinnahmen noch laufende Kosten.
+  if(model.propertySaleOn &&
+     year===Number(model.propertySaleYear) && month===12){
+    result+=num(model.propertySaleNet);
+  }
+
+  return result;
+}
+
+function annualCap(){
+  if(model.repaymentCap!==null)return num(model.repaymentCap);
+  if(model.originalPrincipal!==null)
+    return num(model.originalPrincipal)*0.05;
+  return 0;
+}
+
+function loanReady(){
+  return model.mortgageBalance!==null &&
+    model.mortgageRate!==null &&
+    model.mortgagePayment!==null &&
+    model.mortgageAsOf &&
+    num(model.mortgageBalance)>0 &&
+    num(model.mortgagePayment)>0;
+}
+
+function simulate(){
+  const rows=[];
+  let reserve=num(model.openingReserve);
+  let balance=num(model.mortgageBalance);
+  const validLoan=loanReady();
+  const start=model.mortgageAsOf||'2027-01';
+  let payoff=null;
+  let lastMonth=null;
+
+  const firstYear=Math.max(2027,Number(start.slice(0,4))||2027);
+  const maxYear=Math.max(firstYear+45,2075);
+  const repaymentMonth=Math.max(1,Math.min(12,
+    Math.round(num(model.repaymentMonth)||7)));
+  const repaymentDay=Math.max(1,Math.min(28,
+    Math.round(num(model.repaymentDay)||15)));
+
+  for(let year=firstYear;year<=maxYear;year++){
+    let specialPaid=0;
+    let theoretical=0;
+    let yearSpecial=specialCost(year);
+    let yearNet=0;
+
+    for(let month=1;month<=12;month++){
+      const key=monthKey(year,month);
+      if(key<start)continue;
+
+      let cash=monthlyBase(year,month);
+
+      // Urlaub und sonstige Sonderausgaben werden konservativ
+      // im Dezember abgezogen, sofern kein Monatsdatum vorliegt.
+      if(month===12)cash-=yearSpecial;
+
+      yearNet+=cash;
+      reserve+=cash;
+
+      if(validLoan && balance>0){
+        const rate=(model.fixedRateEnd &&
+          model.followUpRate!==null &&
+          key>model.fixedRateEnd)
+          ?num(model.followUpRate)
+          :num(model.mortgageRate);
+
+        const interest=balance*rate/1200;
+        const regular=num(model.mortgagePayment);
+
+        if(regular<=interest+0.000001){
+          // Nicht tilgendes Darlehen: kein fiktives Ablaufdatum.
+          balance+=interest-regular;
+        }else{
+          balance=Math.max(0,balance+interest-regular);
+        }
+
+        if(balance<=0.005 && !payoff){
+          payoff=key;
+          balance=0;
+        }
+      }
+
+      if(month===repaymentMonth){
+        const cap=annualCap();
+        theoretical=Math.max(0,Math.min(
+          cap,
+          reserve-num(model.minimumReserve),
+          validLoan?balance:Infinity
+        ));
+
+        let requested=0;
+        if(model.repaymentPolicy==='available'){
+          requested=theoretical;
+        }else if(model.repaymentPolicy==='manual'){
+          requested=num(model.annualRepayments[year]);
+        }
+
+        if(validLoan && balance>0){
+          specialPaid=Math.max(0,Math.min(
+            requested,cap,balance,
+            reserve-num(model.minimumReserve)
+          ));
+          balance=Math.max(0,balance-specialPaid);
+          reserve-=specialPaid;
+          if(balance<=0.005 && !payoff){
+            payoff=key;
+            balance=0;
+          }
+        }
+      }
+
+      lastMonth=key;
+    }
+
+    rows.push({
+      year,
+      special:yearSpecial,
+      reserve,
+      theoretical,
+      paid:specialPaid,
+      balance:validLoan?balance:null,
+      net:yearNet
+    });
+
+    if(year>=2038 && validLoan && payoff && year>=Number(payoff.slice(0,4))+1){
+      break;
+    }
+  }
+
+  return {rows,payoff,validLoan,lastMonth};
+}
+
+function renderAnnual32(){
+  const result=simulate();
+
+  payoffValue.textContent=result.validLoan
+    ?(result.payoff
+      ?new Date(
+          Number(result.payoff.slice(0,4)),
+          Number(result.payoff.slice(5,7))-1,1
+        ).toLocaleDateString('de-DE',{month:'long',year:'numeric'})
+      :'Noch kein Tilgungsdatum berechenbar')
+    :'Darlehensdaten ergänzen';
+
+  payoffDetail.textContent=result.validLoan
+    ?'Modellrechnung mit Regelrate, Zinsen, Rücklagen und Sondertilgungen. Keine Bankbestätigung.'
+    :'Restschuld, Zinssatz, monatliche Rate und Stichtag in der Jahresplanung eintragen.';
+
+  annualStatus.textContent=result.validLoan
+    ?'Modellierte Ablösung: '+(result.payoff||'innerhalb des Horizonts nicht erreicht')+
+      '. Jahreswerte ab '+result.rows[0]?.year+'.'
+    :'Ohne Darlehensparameter werden Rücklagen und Sonderausgaben gezeigt; Restschuld und Ablösung bleiben offen.';
+
+  const table=document.createElement('table');
+  table.className='fk32-table';
+  const thead=document.createElement('thead');
+  const tr=document.createElement('tr');
+
+  [
+    'Jahr',
+    'Sonderausgaben',
+    'Rücklagen Jahresende',
+    'Rechnerisch mögliche Sondertilgung',
+    'Geplante Sondertilgung',
+    'Restschuld Eigenheim'
+  ].forEach(text=>{
+    const th=document.createElement('th');
+    th.textContent=text;
+    tr.append(th);
+  });
+
+  thead.append(tr);
+  table.append(thead);
+
+  const tbody=document.createElement('tbody');
+  for(const row of result.rows){
+    const tr=document.createElement('tr');
+    [
+      String(row.year),
+      money(row.special),
+      money(row.reserve),
+      money(row.theoretical),
+      money(row.paid),
+      row.balance===null?'–':money(row.balance)
+    ].forEach(text=>{
+      const td=document.createElement('td');
+      td.textContent=text;
+      tr.append(td);
+    });
+    tbody.append(tr);
+  }
+  table.append(tbody);
+  annualTable.replaceChildren(table);
+}
+
+function refresh32(){
+  renderSpark();
+  renderAnnual32();
+}
+
+/* Bestehende Bedienung anbinden */
+const originalRender=render;
+render=function(){
+  originalRender();
+  refresh32();
+};
+
+const oldAccountRows=renderAccountRows;
+renderAccountRows=function(){
+  oldAccountRows();
+  refresh32();
+};
+
+const oldAnnualTab=el('tabAnnual').onclick;
+el('tabAnnual').onclick=function(){
+  oldAnnualTab?.();
+  refresh32();
+};
+
+/* Sicherungen der bisherigen App bleiben unverändert:
+   Das zusätzliche Modell liegt im bestehenden state-Objekt.
+   privateGroups werden weiterhin ausschließlich lokal geladen. */
+
+renderExpenses();
+refresh32();
+
+document.querySelector('header p').textContent=
+  'Private Haushaltsplanung · iPhone-PWA 3.2';
+
+const welcome=el('privacyWelcome');
+if(welcome){
+  welcome.innerHTML=
+    '<strong>Finanzkompass 3.2:</strong> '+
+    'Die öffentliche App enthält keine persönlichen Finanzpositionen. '+
+    'Private Finanzdaten ausschließlich lokal importieren – niemals auf GitHub hochladen.';
+}
+})();
+</script>
+<!-- Ende Finanzkompass 3.2 -->
+</body></html>

@@ -1,0 +1,474 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Finanzkompass 3.3 · iPhone</title><meta name="theme-color" content="#173a5a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Finanzkompass"><link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-180.png"><style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#203247;background:#f2f5f9}*{box-sizing:border-box}body{margin:0}main{max-width:900px;margin:auto;padding:14px}header{background:#173a5a;color:#fff;padding:23px;border-radius:16px}header p{color:#d3e1ed;margin:5px 0 0}.panel,.stat{background:white;border:1px solid #dbe3eb;border-radius:12px;padding:13px;margin:12px 0}.controls,.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stats .stat{margin:0}label{font-size:13px;display:block;color:#61748a;margin-bottom:5px}input,select,button{font:inherit;border:1px solid #cbd6e2;border-radius:8px;padding:9px;background:white;color:#203247}input[type=number],select{width:100%}button{cursor:pointer}button:hover{background:#eaf1f7}.stat small{color:#65778b}.stat strong{display:block;font-size:21px;margin-top:4px}.positive{color:#13835a}.negative{color:#bd4050}.group{border:2px solid #d7e1ea;background:white;border-radius:13px;overflow:hidden;margin:14px 0}.group summary{display:flex;justify-content:space-between;gap:12px;padding:13px;background:#e8f0f7;cursor:pointer;font-weight:700}.item{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:12px;align-items:center;padding:10px 13px;border-top:1px solid #edf0f4}.item small{display:block;font-size:11px;color:#75889a}.item input{text-align:right}.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.note{padding:12px;background:#fff6e7;border:1px solid #e9d1a4;border-radius:10px;line-height:1.5}.barrow{display:grid;grid-template-columns:52px 1fr 110px;gap:8px;align-items:center;margin:9px 0;font-size:12px}.bar{height:12px;background:#e8eef5;border-radius:8px;overflow:hidden}.fill{height:100%;background:#168963}.muted{font-size:12px;color:#697b8c}.check{display:flex;align-items:center;gap:8px;color:#203247;margin:9px 0}.check input{width:auto}.groupheadright{text-align:right;white-space:nowrap}.groupheadright small{display:block;font-size:11px;font-weight:400;color:#526b81;margin-top:3px}.due{color:#147a56;font-weight:650}.notdue{color:#84909b}.auditline{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #edf0f4}.auditline:last-child{border-bottom:0}.item .monthly{display:block;font-size:12px;font-weight:650;margin-top:3px}.explain{font-size:12px;color:#62778c;margin-top:7px}@media(max-width:480px){main{padding:8px}.stat strong{font-size:17px}.item{grid-template-columns:minmax(0,1fr) 94px;padding:9px}.barrow{grid-template-columns:45px 1fr 96px}}
+
+.item{grid-template-columns:minmax(0,1fr) auto;cursor:pointer}.item .amountactions{display:flex;align-items:center;gap:9px;justify-content:flex-end}.item .mainamount{font-size:16px;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap}.item .pencil{width:36px;height:36px;padding:6px;font-size:17px;border-radius:9px;flex-shrink:0}.item .amountmeta{font-size:11px;color:#75889a;text-align:right}.item .amountstack{text-align:right}.item .notdueamount{color:#607488} .item{cursor:pointer}.item:hover{background:#f3f8fc}.item .editcue{font-size:11px;color:#356a91;margin-top:4px}
+.modalshade{position:fixed;inset:0;background:#10283c99;display:none;align-items:center;justify-content:center;padding:12px;z-index:20}.modalshade.visible{display:flex}.modal{width:min(100%,510px);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:20px;box-shadow:0 12px 45px #0003}.modal h2{margin:0 0 7px}.modal .field{margin:14px 0}.modal .field input,.modal .field select{width:100%}.modal .actions{justify-content:flex-end}.changeentry{padding:10px;border:1px solid #dbe3eb;border-radius:9px;margin:8px 0}.changeentry button{font-size:12px;margin-top:7px}.hint{font-size:12px;color:#63778b}
+
+.tabs{display:flex;gap:8px;margin:14px 0}.tabs button{flex:1;font-weight:700;font-size:13px;padding:9px 5px}.tabs button.active{background:#173a5a;color:white}.forecast-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.forecast-grid .field{min-width:0}.forecast-grid input,.forecast-grid select{width:100%}.forecast-grid .wide{grid-column:1/-1}.forecast-result{background:#e8f0f7;border-radius:12px;padding:16px;margin:12px 0}.forecast-result strong{display:block;font-size:27px}.forecast-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e3eaf0}.forecast-row span:last-child{font-weight:650;text-align:right}.forecast-events{max-height:330px;overflow:auto}.forecast-event{display:grid;grid-template-columns:112px minmax(0,1fr) auto;gap:8px;border-bottom:1px solid #e3eaf0;padding:8px 0;font-size:12px}.forecast-event span:last-child{text-align:right;white-space:nowrap}.forecast-warning{color:#98551a;background:#fff6e7;padding:11px;border-radius:9px;font-size:12px}.hidden{display:none!important}@media(max-width:480px){.forecast-event{grid-template-columns:98px minmax(0,1fr) auto;gap:5px}.forecast-result strong{font-size:23px}}
+.due-editor{margin-top:15px;border:1px solid #dbe3eb;border-radius:10px;padding:12px}.due-editor summary{cursor:pointer;font-weight:700}.due-row{display:grid;grid-template-columns:minmax(0,1fr) 82px 90px;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid #edf0f4}.due-row label{margin:0}.due-row input{width:100%;padding:6px}.due-row small{font-size:10px;color:#697b8c}.primarycalc{background:#173a5a;color:white;font-weight:700}.primarycalc:hover{background:#285678}input[type=date]{color:#203247;color-scheme:light;min-width:0}input[type=date]::-webkit-datetime-edit{color:#203247}input[type=date]::-webkit-datetime-edit-text{color:#203247}input[type=date]::-webkit-datetime-edit-day-field,input[type=date]::-webkit-datetime-edit-month-field,input[type=date]::-webkit-datetime-edit-year-field{color:#203247}@media(max-width:480px){.due-row{grid-template-columns:minmax(0,1fr) 68px 65px}}
+
+.money-text{width:100%;font-variant-numeric:tabular-nums;appearance:none;-webkit-appearance:none}
+.decision-grid{display:grid;grid-template-columns:minmax(0,1fr) 120px 145px;gap:9px;align-items:end;margin:12px 0;padding-bottom:10px;border-bottom:1px solid #e5ebf2}
+.decision-grid input{width:100%;min-width:0}.decision-grid .description{font-weight:650}.decision-grid .detail{font-size:11px;color:#61748a;margin-top:3px}.decision-grid .field{min-width:0}
+.decision-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.decision-actions button{background:#e8f0f7}
+@media(max-width:560px){.decision-grid{grid-template-columns:1fr 1fr}.decision-grid .description{grid-column:1/-1}}
+@media(max-width:650px){body{font-size:16px}main{padding:10px!important}.panel{padding:14px!important;margin-bottom:12px!important}.forecast-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}input,select,button{font-size:16px!important;min-height:44px}.tabs{position:sticky;top:0;z-index:20;background:#f6f8fb;padding:8px 0}.tabs button{flex:1}.forecast-result strong{font-size:clamp(28px,9vw,44px)}.actions{gap:8px}}@media(max-width:390px){.forecast-grid{grid-template-columns:1fr!important}}
+
+.dashboard-summary .stats{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-summary h2,.dashboard-forecast h2{margin:16px 0 10px}.dashboard-forecast>.field{max-width:400px;margin:12px 0}.dashboard-more{margin:6px 0}.dashboard-more>summary{cursor:pointer;font-weight:700;padding:12px;background:#edf3f8;border-radius:9px}.tabs button{font-size:clamp(11px,3.2vw,15px);line-height:1.25}.dashboard-forecast>.panel{margin-top:8px}.dashboard-summary .stat strong{overflow-wrap:anywhere}@media(max-width:390px){.dashboard-summary .stats{grid-template-columns:1fr 1fr}.tabs{gap:4px}.tabs button{padding:8px 3px}}
+</style></head><body><div id="privacyWelcome" style="padding:16px;background:#e8f3ff;color:#173a5a;border-bottom:2px solid #173a5a"><strong>Datenschutz-Version 3.1:</strong> Diese öffentliche App enthält keine persönlichen Planungsbeträge. Bitte deine <strong>private Finanzkompass-Profil-Datei</strong> über „Datensicherung einlesen“ importieren. Die Datei niemals zu GitHub hochladen.</div><main><header><h1>🧭 Finanzkompass</h1><p>Private Haushaltsplanung · iPhone-PWA 2.4</p></header>
+<p class="muted" id="storageNotice" role="status"></p><div class="tabs"><button id="tabPlan" class="active" type="button">Monatsplanung</button><button id="tabLiquidity" type="button">Liquidität & Prognose</button><button id="tabAnnual" type="button">Jahresplanung & Sondertilgung</button></div><section id="planView"><div class="panel"><div class="controls"><div><label for="month">Monat</label><select id="month"></select></div></div></div>
+<div class="stats"><div class="stat"><small>Einnahmen</small><strong id="income">–</strong></div><div class="stat"><small>Ausgaben</small><strong id="expense">–</strong></div><div class="stat"><small>Monatsergebnis</small><strong id="balance">–</strong></div><div class="stat"><small>Davon: Vermietetes Reihenhaus</small><strong id="rental">–</strong></div></div>
+<p class="note"><strong>Planungshinweis:</strong> Bekannte Quartals- und Jahreskosten erscheinen in ihrem vorgesehenen Zahlungsmonat. Unbestätigte Termine sind vorläufig. Einige Positionen sind noch nicht vollständig erfasst. Monatsbudgets sind keine tatsächlichen Abbuchungen.</p>
+<p class="muted">Tippe auf eine Position, um Betrag, Zahlungsmonat oder Laufzeit zu bearbeiten. Änderungen ab einem Monat beeinflussen frühere Monate nicht.</p><div class="actions"><button id="expand">Alle aufklappen</button><button id="collapse">Alle einklappen</button></div><div id="groups"></div><div class="panel" id="decisionsPanel"><h2>🎛️ Planbare Entscheidungen</h2><p class="muted">Eigenheim-Projekte und zusätzliche Ausgaben: Beträge und Zahlungsmonate direkt ändern. Die Monatsplanung und die Liquiditätsprognose übernehmen die Änderungen. Ein Betrag von 0 € bedeutet: vorerst nicht einplanen.</p><h3>Eigenheim-Projekte</h3><div id="projectControls"></div><h3>Optionale Szenarien</h3><div class="controls"><div><label for="bonus">Möglicher Nettobonus (€)</label><input id="bonus" type="text" inputmode="decimal" class="money-text" placeholder="0,00"></div></div><label class="check"><input id="bonusOn" type="checkbox"> Unbestätigten Bonus im Mai 2027 einrechnen</label><label class="check"><input id="eqaSold" type="checkbox"> Fahrzeugrate ab Februar 2027 streichen (Szenario)</label><p class="muted">Ein Verkaufserlös oder eine Kreditablösung ist nicht enthalten. Der Januar 2027 bleibt bei dieser Option unverändert. Die Mietwagen-Jahresplanung ist an dieses Szenario gekoppelt.</p><h3>Zusätzliche geplante Ausgabe</h3><div id="customCosts"></div><div class="decision-actions"><button id="addCustom" type="button">+ Ausgabe hinzufügen</button></div><p class="muted">Alle Beträge sind Planwerte. Zusätzliche Ausgaben werden genau einmal in ihrem Zahlungsmonat angesetzt.</p></div><div class="panel"><h3>Rechenkontrolle & Jahresübersicht 2027</h3><p class="muted">Jahreswerte sind die Summe der 12 berechneten Monate, nicht 12-mal der aktuelle Monat. Monatsbudgets sind Planwerte.</p><div id="audit"></div></div><div class="panel"><h3>Monatsentwicklung</h3><div id="chart"></div></div><div class="actions"><button id="csv">CSV exportieren</button><button id="backup">Datensicherung herunterladen</button><button id="restore">Datensicherung einlesen</button><input id="backupfile" type="file" accept="application/json,.json" hidden><button id="reset">Änderungen zurücksetzen</button></div><p class="muted">Die Finanzplanung wird nur auf diesem Gerät gespeichert. Private JSON-Dateien niemals auf GitHub hochladen.</p><p class="muted">Speicherung nur lokal in diesem Browser. Keine Anmeldung, kein automatischer Abgleich zwischen Geräten. Eine Sicherungsdatei kann wieder eingelesen werden.</p></section><section id="liquidityView" class="hidden">
+<div class="panel"><h2>💧 Tagesgenaue Liquiditätsprognose</h2><p class="muted">Trage die echten Kontostände und offenen Kreditkartenbeträge zu einem gemeinsamen Stichtag ein. Wähle anschließend das Datum, für das du die Prognose sehen möchtest.</p>
+<div class="forecast-grid"><div class="field"><label for="liqAnchor">Stand vom</label><input id="liqAnchor" type="date"></div><div class="field"><label for="liqTarget">Prognose für</label><input id="liqTarget" type="date"></div><div class="field"><label for="liqSalary">GLS-Konto (€)</label><input id="liqSalary" type="text" inputmode="decimal" class="money-text" autocomplete="off" style="background:#fff;color:#203247;opacity:1;min-height:44px;cursor:text"></div><div class="field"><label for="liqSecond">Sparkassenkonto (€)</label><input id="liqSecond" type="text" inputmode="decimal" class="money-text" autocomplete="off" style="background:#fff;color:#203247;opacity:1;min-height:44px;cursor:text"></div></div>
+<div class="actions"><button type="button" id="editBalances" class="primarycalc">✎ Kontostände neu eingeben</button></div><p class="muted">Falls die Eingabefelder in Safari nicht funktionieren, nutze „Kontostände neu eingeben“. Damit lassen sich beide Beträge über zwei separate Eingabefenster ändern. Die Zahlen weiter unten sind nur Prognoseergebnisse.</p><h3>Beide Kreditkarten · Einzug vom GLS-Konto</h3><p class="muted">Offene Kartenumsätze am Stichtag. Bei bereits feststehenden Abbuchungen den Betrag und den Einzugstag eintragen. Ein noch nicht abgerechneter Betrag bleibt bis zu seinem späteren Einzug als Verbindlichkeit sichtbar.</p>
+<div class="forecast-grid"><div class="field"><label for="card1Name">Kreditkarte 1</label><input id="card1Name" type="text" value="GLS Kreditkarte J"></div><div class="field"><label for="card1Open">Offen gesamt (€)</label><input id="card1Open" type="number" min="0" step="0.01"></div><div class="field"><label for="card1Bill">Davon nächster Einzug (€)</label><input id="card1Bill" type="number" min="0" step="0.01"></div><div class="field"><label for="card1Date">Nächster Einzug am</label><input id="card1Date" type="date"></div><div class="field"><label for="card1RestDate">Einzug Restbetrag am (falls bekannt)</label><input id="card1RestDate" type="date"></div><div class="field"><label for="card1Cutoff">Abrechnungsstichtag (vorläufig)</label><input id="card1Cutoff" type="number" min="1" max="28" value="18"></div></div>
+<hr><div class="forecast-grid"><div class="field"><label for="card2Name">Kreditkarte 2</label><input id="card2Name" type="text" value="GLS Kreditkarte O"></div><div class="field"><label for="card2Open">Offen gesamt (€)</label><input id="card2Open" type="number" min="0" step="0.01"></div><div class="field"><label for="card2Bill">Davon nächster Einzug (€)</label><input id="card2Bill" type="number" min="0" step="0.01"></div><div class="field"><label for="card2Date">Nächster Einzug am</label><input id="card2Date" type="date"></div><div class="field"><label for="card2RestDate">Einzug Restbetrag am (falls bekannt)</label><input id="card2RestDate" type="date"></div></div>
+<p class="muted">Für beide Karten gilt: keine Teilzahlung. Ein nicht vollständig eingezogener offener Betrag entsteht hier durch den Abrechnungszeitraum, nicht durch Ratenzahlung. Der Stichtag der GLS-Karte (18.) ist noch zu bestätigen.</p></div>
+<div class="panel"><details class="due-editor"><summary>Noch zu klären (nicht eingerechnet)</summary><p class="muted">19,00 € quartalsweise an die Gemeinde beim Wochenendhaus: Zweck und Zahlungspflicht noch offen. Bis zur Klärung nicht Teil der Berechnung.</p></details><div class="actions"><button id="calcLiquidity" type="button" class="primarycalc">Prognose berechnen / aktualisieren</button></div><p class="muted" id="liqStatus" role="status">Bitte die beiden Girokontostände eingeben, dann wird gerechnet.</p><div class="forecast-result"><small>Bereinigte Liquidität am gewählten Tag</small><strong id="liqAvailable">–</strong><small>Summe beider Girokonten minus noch offene Kartenverbindlichkeiten</small></div><div class="forecast-row"><span>GLS-Konto</span><span id="liqSalaryResult">–</span></div><div class="forecast-row"><span>Sparkassenkonto</span><span id="liqSecondResult">–</span></div><div class="forecast-row"><span>Girokonten zusammen</span><span id="liqBanksResult">–</span></div><div class="forecast-row"><span>Noch offene Kreditkarten</span><span id="liqCardsResult">–</span></div><div class="forecast-row"><strong>Bereinigte Liquidität</strong><span id="liqNetResult">–</span></div><div class="forecast-row"><span>Niedrigster prognostizierter Girokontostand (zusammen)</span><span id="liqMinResult">–</span></div><p id="liqWarning" class="forecast-warning"></p></div>
+<div class="panel"><h3>🏦 Sparkassenkonto & monatliche Umbuchung</h3><p class="muted">Die Umbuchung ist keine Ausgabe: GLS-Konto − Betrag, Sparkassenkonto + Betrag. Der Betrag ist frei änderbar und wird ab dem eingestellten Monat berücksichtigt. Ein Vorschlag ergibt sich aus den dem Sparkassenkonto zugeordneten monatlichen Budgets. Ändere deinen echten Dauerauftrag erst nach Prüfung der Prognose.</p><div class="forecast-grid"><div class="field"><label for="transferAmount">Monatliche Umbuchung (€)</label><input id="transferAmount" type="text" inputmode="decimal" class="money-text"></div><div class="field"><label for="transferStart">Umbuchung ab (Monat)</label><input id="transferStart" type="month" min="2026-10" max="2027-12"></div><div class="field"><label for="transferDay">Umbuchung am Monatstag</label><input id="transferDay" type="number" min="1" max="31"></div></div><div class="actions"><button id="transferSuggested" type="button">Vorgeschlagenen Betrag übernehmen</button></div><div id="transferRecommendation" class="explain"></div><details class="due-editor" open><summary>▸ Konto je Ausgabe und Einnahme zuordnen</summary><p class="muted">GLS-Konto: Lastschriften und Fixkosten. Sparkassenkonto: variable Ausgaben. Kreditkarte: bereits über die Kreditkarte bezahlte Kosten. Die Zuordnung lässt sich jederzeit ändern.</p><div id="accountRows"></div></details></div>
+<div class="panel"><h3>Fälligkeitstage für die Prognose</h3><p class="muted">Die aus dem Chatarchiv rekonstruierten Tage sind vorbelegt. Bei Zeitfenstern wird der letzte beobachtete Tag angesetzt; Monatsende wird für Darlehen als letzter Werktag berechnet. Unbekannte Termine bleiben vorläufig. Monatsbudgets werden tageweise verteilt.</p><div class="forecast-grid"><div class="field"><label for="salaryDay">Bonus-Zahlungstag (Szenario)</label><input id="salaryDay" type="number" min="1" max="31"></div><div class="field"><label for="rentDay">Mieteingang</label><input id="rentDay" type="number" min="1" max="31"></div><div class="field"><label for="childDay">Kindergeld</label><input id="childDay" type="number" min="1" max="31"></div><div class="field"><label for="defaultDay">Übrige Fixkosten</label><input id="defaultDay" type="number" min="1" max="31"></div></div><details class="due-editor"><summary>▸ Zahlungstage je Position bearbeiten</summary><p class="muted">Werte gelten für die Liquiditätsprognose. Bei Monatsbudgets erfolgt weiterhin eine tägliche Verteilung. Änderungen werden automatisch gespeichert.</p><div id="dueRows"></div></details><div class="field" style="margin-top:10px"><label for="routing">Alte Standardzuordnung (nur für ältere Einstellungen)</label><select id="routing"><option value="salary">GLS-Konto (vorläufig)</option><option value="second">Sparkassenkonto</option></select></div><p class="muted">Gehalt J und O laufen fest über das GLS-Konto; Kreditkarteneinzüge ebenfalls. Übrige Planbuchungen richten sich nach der Zuordnung oben. Die Zuordnung jeder Position erfolgt oben; das Sparkassenkonto wird separat fortgeschrieben.</p></div>
+<div class="panel"><h3>Rechenkontrolle der Liquiditätsprognose</h3><p class="muted">Alle Bewegungen nach dem Ausgangsstichtag bis einschließlich Prognosedatum, nach Monat und Konto getrennt. Kreditkarteneinzüge werden als Kontobelastung ausgewiesen.</p><div id="liqAudit"></div></div><div class="panel"><h3>Erwartete Bewegungen bis zum Prognosedatum</h3><p class="muted">Die Liste zeigt geplante Einnahmen und Ausgaben sowie Kreditkarteneinzüge. Verbrauchsbudgets werden je Kategorie nur einmal als Summe für den Prognosezeitraum angezeigt; intern bleiben sie täglich berücksichtigt. Bereits per Kreditkarte bezahlte Ausgaben müssen im Budget abgeglichen werden, sonst kann die Prognose zu vorsichtig ausfallen.</p><div class="forecast-events" id="liqEvents"></div></div>
+</section><section id="annualView" class="hidden">
+<div class="panel"><h2>🏡 Jahresplanung & Sondertilgung Eigenheim</h2><p class="muted">Planung ab 2027. Grundlage sind deine privaten Positionen aus der Monatsplanung; die öffentliche App enthält weiterhin keine persönlichen Beträge. Sondertilgungen werden nicht automatisch als Ausgabe in die Monats- oder Liquiditätsplanung übernommen.</p>
+<div class="forecast-grid"><div class="field"><label for="annualYear">Planungsjahr</label><select id="annualYear"></select></div><div class="field"><label for="annualReserve">Gewünschte Liquiditätsreserve (€)</label><input id="annualReserve" type="number" min="0" step="100"></div><div class="field"><label for="annualDay">Geplanter Sondertilgungstermin</label><input id="annualDay" type="date"></div><div class="field"><label for="annualCap">Vertragliche jährliche Obergrenze (€)</label><input id="annualCap" type="number" min="0" step="50"></div></div>
+<p class="muted">Die vertragliche Obergrenze und den Planungstermin bitte aus deiner privaten Sicherung übernehmen und vor einer Zahlung prüfen.</p></div>
+<div class="panel"><h3>Geplante jährliche Sonderausgaben</h3><div class="forecast-grid"><div class="field"><label for="annualHoliday">Urlaub ab 2029 (€ pro Jahr)</label><input id="annualHoliday" type="number" min="0" step="100"></div><div class="field"><label for="annualRenovation">Renovierungs-/Instandhaltungsrücklage (€ pro Jahr)</label><input id="annualRenovation" type="number" min="0" step="100"></div></div><p class="muted">Urlaub wird ab 2029 zusätzlich eingeplant. Renovierungsrücklage gilt ab 2027. Bereits in der Monatsplanung enthaltene Ausgaben hier nicht noch einmal ansetzen.</p><h4>Weitere Sonderausgaben</h4><div id="annualExtras"></div><div class="actions"><button id="annualAdd" type="button">+ Sonderausgabe hinzufügen</button></div></div>
+<div class="panel"><h3>Jahresergebnis</h3><div id="annualResult"></div><p class="muted">Wichtig: Dies ist eine Jahresüberschuss-Rechnung, <strong>keine bestätigte Verfügbarkeit am 15. Juli</strong>. Der Jahresüberschuss kann erst nach dem Sondertilgungstermin entstehen. Vor einer Zahlung die taggenaue Liquiditätsprognose bis Juli und über die Folgemonate prüfen. Kreditkarten und einmalige Buchungen sind in der langfristigen Fortschreibung nur so weit erfasst, wie sie in der Monatsplanung stehen.</p></div>
+<div class="panel"><h3>Entwicklung nach Jahren</h3><div id="annualYears"></div><p class="muted">Ab 2028 werden die bestehenden wiederkehrenden Positionen gemäß Laufzeiten und hinterlegten Änderungen fortgeschrieben. Ohne neue Annahmen zu Gehaltsentwicklung, Inflation, Zinsänderungen oder Kreditablösung sind die Ergebnisse Szenarien, keine Zusage.</p></div>
+</section></main>
+<div class="modalshade" id="modalshade" role="presentation"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modaltitle"><h2 id="modaltitle">Position bearbeiten</h2><p id="modaldescription" class="hint"></p><div class="field"><label for="editbase">Regulärer Betrag je Zahlungsintervall (€)</label><input id="editbase" type="number" min="0" step="0.01"></div><div class="field"><label for="editstart">Zahlung beginnt (Monat)</label><input id="editstart" type="month"></div><div class="field"><label for="editend">Letzte Zahlung (optional)</label><input id="editend" type="month"></div><div class="field"><label for="editfrequency">Zahlungsrhythmus</label><select id="editfrequency"><option value="m">Monatlich</option><option value="q">Vierteljährlich</option><option value="h">Halbjährlich</option><option value="y">Jährlich</option><option value="o">Einmalig</option></select></div><hr><h3>Änderung ab einem Monat</h3><p class="hint">Für eine spätere Erhöhung oder Senkung: Betrag und Startmonat eingeben. Bisherige Monate bleiben unverändert.</p><div class="controls"><div><label for="changefrom">Gültig ab</label><input id="changefrom" type="month" value="2027-05"></div><div><label for="changeamount">Neuer Betrag (€)</label><input id="changeamount" type="number" min="0" step="0.01"></div></div><p class="hint">Eine eingetragene Änderung wird direkt mit „Speichern“ übernommen.</p><div id="changes"></div><div class="actions"><button id="cancelmodal">Abbrechen</button><button id="savemodal" style="background:#173a5a;color:#fff">Speichern</button></div></section></div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);const euro=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(n);
+const months=Array.from({length:14},(_,i)=>{const d=new Date(2026,10+i,1);return {key:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),label:d.toLocaleDateString('de-DE',{month:'long',year:'numeric'})}});
+// Eintrag: [ID, Name, Euro, Turnus (m/q/h/y/o), Beginn, Ende].
+let groups=[];
+
+const STORAGE='finanzkompass_v04';
+const storage={
+ getItem(key){try{return window.localStorage.getItem(key)}catch(e){return null}},
+ setItem(key,value){try{window.localStorage.setItem(key,value);return true}catch(e){return false}},
+ removeItem(key){try{window.localStorage.removeItem(key)}catch(e){}}
+};let state={values:{},bonus:0,bonusOn:false,eqaSold:false};try{const saved=JSON.parse(storage.getItem(STORAGE));if(saved&&typeof saved==='object')state={...state,...saved,values:saved.values||{}}}catch{}
+// Übernahme der in v0.3 geänderten Beträge, ohne die ältere Version zu löschen.
+if(!storage.getItem(STORAGE)){try{const old=JSON.parse(storage.getItem('finanzkompass_v03'));if(old&&typeof old==='object'){state={...state,...old,values:old.values||{}};}}catch{}}
+groups=Array.isArray(state.privateGroups)?state.privateGroups:[]; state.schedules ||= {}; state.overrides ||= {}; state.liquidity ||= {}; state.customCosts ||= []; state.accountRoutes ||= {}; state.transfer ||= {amount:0,start:'2026-10',day:1};
+function save(){state.privateGroups=groups;if(!storage.setItem(STORAGE,JSON.stringify(state)))$('storageNotice').textContent='Achtung: Speicherung ist in dieser Ansicht gesperrt. Bitte HTML lokal in Safari öffnen und Sicherung exportieren.'}
+function schedule(item){const o=state.schedules[item[0]]||{};return {start:o.start??item[4]??'2026-11',end:o.end??item[5]??'9999-12',frequency:o.frequency??item[3]}}
+function due(item,month){const sc=schedule(item),start=sc.start,end=sc.end||'9999-12';if(month<start||month>end)return false;const [y,m]=month.split('-').map(Number),[sy,sm]=start.split('-').map(Number);const diff=(y-sy)*12+m-sm;return sc.frequency==='m'||(sc.frequency==='q'&&diff%3===0)||(sc.frequency==='h'&&diff%6===0)||(sc.frequency==='y'&&diff%12===0)||(sc.frequency==='o'&&diff===0)}
+function amount(item,month){if(!due(item,month))return 0;const id=item[0];if(id==='eqa'&&state.eqaSold&&month>='2027-02')return 0;if(id==='carins'&&state.eqaSold&&month>='2027-04')return 0;if(id==='rentalcar'&&(!state.eqaSold||month<'2027-02'))return 0;let n=Number(state.values[id]??item[2]);const changes=state.overrides[id]||[];for(const change of [...changes].sort((a,b)=>a.from.localeCompare(b.from)))if(change.from<=month)n=Number(change.amount);if(id==='internet'&&month>='2027-05'&&!(state.overrides[id]||[]).some(c=>c.from<=month))n+=4;return Number.isFinite(n)?n:0}
+function signed(group,item,month){const a=amount(item,month);return group.id==='income'||(group.id==='rental'&&item[0]==='rent')?a:-a}
+function totals(month){let income=0,expense=0,rental=0;for(const g of groups)for(const item of g.items){const v=signed(g,item,month);if(v>=0)income+=v;else expense-=v;if(g.id==='rental')rental+=v}if(state.bonusOn&&month==='2027-05')income+=Number(state.bonus)||0;for(const c of state.customCosts||[])if(c.month===month)expense+=Math.max(0,Number(c.amount)||0);return {income,expense,rental,balance:income-expense}}
+function yearSum(group){return months.filter(m=>m.key.startsWith('2027')).reduce((a,m)=>a+group.items.reduce((b,item)=>b+signed(group,item,m.key),0),0)}
+function render(){document.getElementById('privacyWelcome').style.display=groups.length?'none':'block';
+ const month=$('month').value,t=totals(month);
+ $('income').textContent=euro(t.income);$('expense').textContent=euro(t.expense);
+ $('balance').textContent=euro(t.balance);$('rental').textContent=euro(t.rental);
+ $('balance').className=t.balance>=0?'positive':'negative';$('rental').className=t.rental>=0?'positive':'negative';
+ const holder=$('groups');const opened=new Map([...holder.querySelectorAll('details')].map(d=>[d.dataset.id,d.open]));holder.replaceChildren();
+ for(const group of groups){
+  // Eigenheim-Projekte werden ausschließlich im gemeinsamen Bereich 'Planbare Entscheidungen' angezeigt.
+  // Sie bleiben in groups, damit Monats- und Liquiditätsrechnung sie weiterhin genau einmal berücksichtigen.
+  if(group.id==='projects')continue;
+  const details=document.createElement('details');details.className='group';details.dataset.id=group.id;details.open=opened.has(group.id)?opened.get(group.id):true;
+  const summary=document.createElement('summary'),name=document.createElement('span'),right=document.createElement('span');right.className='groupheadright';name.textContent=group.name;
+  const current=group.items.reduce((a,item)=>a+signed(group,item,month),0);
+  if(group.id==='other'){
+   right.textContent='Einzelzahlungen';
+  }else{
+   const currentEl=document.createElement('span');currentEl.textContent='Monat: '+euro(current);
+   const annualEl=document.createElement('small');annualEl.textContent='2027 gesamt: '+euro(yearSum(group));
+   right.append(currentEl,annualEl);
+  }
+  summary.append(name,right);details.append(summary);
+  for(const item of group.items){
+   const row=document.createElement('div');row.className='item';const info=document.createElement('div'),label=document.createElement('div'),sub=document.createElement('small');label.textContent=item[1];
+   const active=due(item,month);const counted=amount(item,month);
+   sub.textContent={m:'Monatlich',q:'Vierteljährlich',h:'Halbjährlich',y:'Jährlich',o:'Einmalig'}[schedule(item).frequency]+(active?' · im Monat vorgesehen':' · diesen Monat nicht fällig');
+   if(item[0]==='gardeninsurance')sub.textContent+=' · 23.07.';
+   if(item[0]==='landlordliability')sub.textContent+=' · 02.01.';
+   info.append(label,sub);
+   const actions=document.createElement('div');actions.className='amountactions';
+   const amountStack=document.createElement('div');amountStack.className='amountstack';
+   const mainAmount=document.createElement('div');mainAmount.className='mainamount'+(counted===0?' notdueamount':'');
+   mainAmount.textContent=euro(counted);
+   const amountMeta=document.createElement('div');amountMeta.className='amountmeta';
+   amountMeta.textContent=counted===0?'nicht fällig':'im gewählten Monat';
+   amountStack.append(mainAmount,amountMeta);
+   const edit=document.createElement('button');edit.type='button';edit.className='pencil';edit.textContent='✎';edit.title='Position bearbeiten';edit.setAttribute('aria-label',item[1]+' bearbeiten');edit.onclick=e=>{e.stopPropagation();openEditor(item)};
+   actions.append(amountStack,edit);row.append(info,actions);row.onclick=()=>openEditor(item);details.append(row);
+  }
+  holder.append(details);
+ }
+ const year=months.filter(m=>m.key.startsWith('2027')).map(m=>totals(m.key));
+ const sums=year.reduce((a,x)=>({income:a.income+x.income,expense:a.expense+x.expense,balance:a.balance+x.balance}),{income:0,expense:0,balance:0});
+ const audit=$('audit');audit.replaceChildren();
+ for(const [label,value] of [['Einnahmen 2027',sums.income],['Ausgaben 2027',sums.expense],['Ergebnis 2027',sums.balance]]){
+  const line=document.createElement('div');line.className='auditline';const l=document.createElement('span');l.textContent=label;const v=document.createElement('strong');v.textContent=euro(value);line.append(l,v);audit.append(line);
+ }
+ const diff=Math.round((sums.income-sums.expense-sums.balance)*100);
+ const check=document.createElement('p');check.className='explain';check.textContent=diff===0?'✓ Rechenprüfung: Einnahmen − Ausgaben = Ergebnis (auf Cent genau).':'⚠ Rechenabweichung: '+euro(diff/100);audit.append(check);
+ const warn=document.createElement('p');warn.className='explain';warn.textContent='Noch keine Vollständigkeitsprüfung: Nicht erfasste Zahlungen und vorläufige Zahlungstermine können das Ergebnis verändern. Die Jahreskosten des Wochenendhauses enthalten alle in 2027 angesetzten Fälligkeiten.';audit.append(warn);
+ renderChart();
+ renderDecisions();
+}
+function renderChart(){const all=months.map(m=>({key:m.key,value:totals(m.key).balance}));const max=Math.max(1,...all.map(x=>Math.abs(x.value)));$('chart').replaceChildren();for(const d of all){const row=document.createElement('div');row.className='barrow';const label=document.createElement('span');label.textContent=d.key.slice(5)+'/'+d.key.slice(2,4);const track=document.createElement('div');track.className='bar';const fill=document.createElement('div');fill.className='fill';fill.style.width=(Math.abs(d.value)/max*100)+'%';if(d.value<0)fill.style.background='#c34151';track.append(fill);const value=document.createElement('span');value.textContent=euro(d.value);value.style.textAlign='right';row.append(label,track,value);$('chart').append(row)}}
+function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+let editing=null, draftChanges=[];
+function openEditor(item){editing=item;const sc=schedule(item);$('modaltitle').textContent=item[1];$('modaldescription').textContent='Änderungen gelten nur für diese Position. Monatliche Zahlungen werden zum jeweiligen Monat berechnet.';$('editbase').value=Number(state.values[item[0]]??item[2]).toFixed(2);$('editstart').value=sc.start;$('editend').value=sc.end==='9999-12'?'':sc.end;$('editfrequency').value=sc.frequency;$('changefrom').value=$('month').value;$('changeamount').value='';draftChanges=structuredClone(state.overrides[item[0]]||[]);renderChanges();$('modalshade').classList.add('visible');$('editbase').focus()}
+function renderChanges(){const host=$('changes');host.replaceChildren();for(const [index,change] of draftChanges.entries()){const div=document.createElement('div');div.className='changeentry';const text=document.createElement('span');text.textContent='Ab '+change.from+': '+euro(change.amount);const remove=document.createElement('button');remove.textContent='Entfernen';remove.type='button';remove.onclick=()=>{draftChanges.splice(index,1);renderChanges()};div.append(text,document.createElement('br'),remove);host.append(div)}}
+function closeEditor(){$('modalshade').classList.remove('visible');editing=null}
+$('cancelmodal').onclick=closeEditor;$('modalshade').onclick=e=>{if(e.target===$('modalshade'))closeEditor()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&editing)closeEditor()});
+$('savemodal').onclick=()=>{if(!editing)return;const raw=$('editbase').value,n=Number(raw),start=$('editstart').value,end=$('editend').value,frequency=$('editfrequency').value;if(raw===''||!Number.isFinite(n)||n<0||!start||(end&&end<start)){alert('Bitte Betrag und Zahlungszeitraum prüfen.');return}const changeRaw=$('changeamount').value.trim();if(changeRaw!==''){const from=$('changefrom').value,changed=Number(changeRaw);if(!from||!Number.isFinite(changed)||changed<0){alert('Bitte für die Änderung einen gültigen Monat und Betrag eingeben.');return}draftChanges=draftChanges.filter(x=>x.from!==from);draftChanges.push({from,amount:changed});draftChanges.sort((a,b)=>a.from.localeCompare(b.from))}const id=editing[0];state.values[id]=n;state.schedules[id]={start,end:end||'9999-12',frequency};state.overrides[id]=draftChanges;save();closeEditor();render()};
+$('expand').onclick=()=>document.querySelectorAll('details.group').forEach(d=>d.open=true);$('collapse').onclick=()=>document.querySelectorAll('details.group').forEach(d=>d.open=false);
+$('csv').onclick=()=>{const lines=[['Monat','Einnahmen','Ausgaben','Saldo','Davon: Vermietetes Reihenhaus']];for(const m of months){const t=totals(m.key);lines.push([m.key,t.income,t.expense,t.balance,t.rental].map(String))}download('Finanzkompass_v14.csv','\ufeff'+lines.map(r=>r.join(';')).join('\r\n'),'text/csv;charset=utf-8')};
+$('backup').onclick=()=>download('Finanzkompass_v14_Sicherung.json',JSON.stringify({...state,privateGroups:groups},null,2),'application/json');
+$('restore').onclick=()=>$('backupfile').click();$('backupfile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!data||typeof data!=='object'||!data.values||typeof data.values!=='object'||Array.isArray(data.values))throw Error();state={...state,...(data.state||data)};groups=Array.isArray(data.groups)?data.groups:(Array.isArray(data.privateGroups)?data.privateGroups:(Array.isArray(state.privateGroups)?state.privateGroups:[]));state.privateGroups=groups;state.schedules ||= {};state.overrides ||= {};state.liquidity ||= {};state.customCosts ||= [];state.accountRoutes ||= {};state.transfer ||= {amount:0,start:'2026-10',day:1};loadLiquidity();loadTransfer();renderDueRows();save();$('bonus').value=String(state.bonus).replace('.',',');$('bonusOn').checked=!!state.bonusOn;$('eqaSold').checked=!!state.eqaSold;render();alert('Datensicherung eingelesen. Die Ansicht wird aktualisiert.');location.reload()}catch{alert('Die Datei ist keine gültige Finanzkompass-Sicherung.')}e.target.value=''};
+$('reset').onclick=()=>{if(confirm('Alle Änderungen dieser Version zurücksetzen?')){storage.removeItem(STORAGE);location.reload()}};
+
+function moneyInput(value,callback){const input=document.createElement('input');input.type='text';input.inputMode='decimal';input.className='money-text';input.value=String(value).replace('.',',');input.addEventListener('change',()=>{const n=parseMoney(input.value);if(!Number.isFinite(n)||n<0){input.setCustomValidity('Bitte einen gültigen Betrag ab 0 € eingeben.');input.reportValidity();return}input.setCustomValidity('');callback(n);input.value=n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});save();render()});return input}
+function monthInput(value,callback){const input=document.createElement('input');input.type='month';input.value=value;input.addEventListener('change',()=>{if(!input.value)return;callback(input.value);save();render()});return input}
+function renderDecisions(){
+ const root=$('projectControls');root.replaceChildren();
+ const project=groups.find(g=>g.id==='projects');
+ for(const item of (project?.items||[])){const row=document.createElement('div');row.className='decision-grid';const name=document.createElement('div');name.className='description';name.textContent=item[1];const note=document.createElement('div');note.className='detail';note.textContent='Einmalige Ausgabe · Eigenheim';name.append(note);const cost=document.createElement('div');const cl=document.createElement('label');cl.textContent='Betrag (€)';cost.append(cl,moneyInput(state.values[item[0]]??item[2],n=>{state.values[item[0]]=n}));const month=document.createElement('div');const ml=document.createElement('label');ml.textContent='Zahlungsmonat';month.append(ml,monthInput(schedule(item).start,v=>{state.schedules[item[0]]={...schedule(item),start:v,end:'9999-12',frequency:'o'}}));row.append(name,cost,month);root.append(row)}
+ const custom=$('customCosts');custom.replaceChildren();for(const [idx,c] of (state.customCosts||[]).entries()){
+  const row=document.createElement('div');row.className='decision-grid';const title=document.createElement('div');const label=document.createElement('label');label.textContent='Beschreibung';const input=document.createElement('input');input.type='text';input.value=c.name||'';input.placeholder='z. B. neue Waschmaschine';input.addEventListener('change',()=>{c.name=input.value;save()});title.append(label,input);
+  const cost=document.createElement('div');const cl=document.createElement('label');cl.textContent='Betrag (€)';cost.append(cl,moneyInput(c.amount||0,n=>{c.amount=n}));
+  const date=document.createElement('div');const ml=document.createElement('label');ml.textContent='Zahlungsmonat';date.append(ml,monthInput(c.month||$('month').value,v=>{c.month=v}));
+  const remove=document.createElement('button');remove.type='button';remove.textContent='Entfernen';remove.style.marginTop='7px';remove.onclick=()=>{state.customCosts.splice(idx,1);save();render()};title.append(remove);row.append(title,cost,date);custom.append(row)
+ }
+}
+$('addCustom').onclick=()=>{state.customCosts.push({name:'',amount:0,month:$('month').value,day:15});save();render();const entries=$('customCosts').querySelectorAll('input[type=text]');if(entries.length)entries[entries.length-2]?.focus()};
+for(const m of months){const opt=document.createElement('option');opt.value=m.key;opt.textContent=m.label;$('month').append(opt)}$('month').value='2027-01';$('month').onchange=render;$('bonus').value=String(state.bonus).replace('.',',');$('bonusOn').checked=!!state.bonusOn;$('eqaSold').checked=!!state.eqaSold;$('bonus').onchange=e=>{state.bonus=Math.max(0,parseMoney(e.target.value)||0);save();render()};$('bonusOn').onchange=e=>{state.bonusOn=e.target.checked;save();render()};$('eqaSold').onchange=e=>{state.eqaSold=e.target.checked;save();render()};render();
+
+// Liquiditätsmodul: tägliche Fortschreibung aus dem gespeicherten Plan und manuell erfassten Ständen.
+const LDEFAULT={anchor:'2026-11-01',target:'2026-11-30',salary:'',second:'',card1Name:'Kreditkarte 1',card1Open:'',card1Bill:'',card1Date:'',card1RestDate:'',card1Cutoff:18,card2Name:'Kreditkarte 2',card2Open:'',card2Bill:'',card2Date:'',card2RestDate:'',salaryDay:28,rentDay:3,childDay:15,defaultDay:15,routing:'salary'};
+const LFIELDS=Object.keys(LDEFAULT);
+// Rekonstruierte Buchungstage aus der gesicherten Unterhaltung. Bei Zeitfenstern wird
+// der letzte beobachtete Tag als vorsichtiger Prognosewert verwendet.
+const KNOWN_DAYS={
+ powerExtra:1,child:15,rent:3,mortgage:31,rentloan:31,kfw:31,
+ ing1:1,ing2:1,skg:30,eqa:20,bauspar:1,health:4,power:4,gas:30,
+ water:15,internet:15,phone2:14,phone1:7,hausgeld:7,gardeninternet:5,
+ landlordliability:2,gardenlease:20,gardeninsurance:23,locker:19,
+ trailerins:2,trailertax:9,catins:9,trip:24,legal:22,liability:4,
+ building:12,adac:1,prime:10,donation:7,paypalD:5
+};
+const DAY_QUALITY={
+ salaryJ:'Zwei Bankarbeitstage vor Monatsende',salaryO:'Letzter Bankarbeitstag',powerExtra:'01.11.2026 (Sonntag; tatsächliche Wertstellung prüfen)',child:'Mitte des Monats (ungefähr)',
+ mortgage:'Monatsende',rentloan:'Monatsende',kfw:'Monatsende',
+ ing1:'um den 1.',ing2:'um den 1.',skg:'28.–30.',eqa:'18.–20.',bauspar:'um den 1.',
+ health:'1.–4.',power:'1.–4.',gas:'28.–30.',water:'12.–15.',internet:'12.–15.',
+ phone1:'7. vorläufig',phone2:'meist 14.',hausgeld:'3.–7.',gardeninternet:'3.–5.',
+ secondtax:'April/Mai, Monat vorläufig',gardenclub:'Februar, Tag unbekannt',
+ gardeninsurance:'23.07.',landlordliability:'02.01.',gardenlease:'20.03.',
+ trailerins:'02.01.',trailertax:'09.07.',catins:'09.04.',trip:'24.08.',
+ legal:'22.12.',liability:'zuletzt 04.05.',building:'zuletzt 12.12.',
+ adac:'01.04.',prime:'10.05.',donation:'07.01. und 07.07.',paypalD:'letzte Rate 05.01.'
+};
+const MONTH_END_IDS=new Set(['mortgage','rentloan','kfw']);
+// Bankarbeitstage: Wochenenden, bundesweite Feiertage und Berliner Feiertage.
+// Heiligabend und Silvester gelten für Banküberweisungen als Nicht-Bankarbeitstage.
+function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),day=(h+l-7*m+114)%31+1;return new Date(y,mo-1,day)}
+function isBankHoliday(d){const y=d.getFullYear(),md=String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');if(['01-01','03-08','05-01','10-03','12-24','12-25','12-26','12-31'].includes(md))return true;const easter=easterSunday(y);const add=n=>{const x=new Date(easter);x.setDate(x.getDate()+n);return x.getMonth()===d.getMonth()&&x.getDate()===d.getDate()};return [-2,1,39,50].some(add)}
+function isBankDay(d){return d.getDay()!==0&&d.getDay()!==6&&!isBankHoliday(d)}
+function salaryBankDate(month,offset){const [y,m]=month.split('-').map(Number);const d=new Date(y,m,0);while(!isBankDay(d))d.setDate(d.getDate()-1);for(let i=0;i<offset;i++){d.setDate(d.getDate()-1);while(!isBankDay(d))d.setDate(d.getDate()-1)}return month+'-'+String(d.getDate()).padStart(2,'0')}
+
+function lastBusinessDay(month,offset=0){const [y,m]=month.split('-').map(Number);let d=new Date(y,m,0);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1);for(let i=0;i<offset;i++){d.setDate(d.getDate()-1);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()-1)}return month+'-'+String(d.getDate()).padStart(2,'0')}
+function plannedDate(id,month,d){if(id==='salaryJ')return salaryBankDate(month,2);if(id==='salaryO')return salaryBankDate(month,0);if(!(state.dueDays&&state.dueDays[id])&&MONTH_END_IDS.has(id))return lastBusinessDay(month);return dayInMonth(month,dayForItem(id,d))}
+
+function dayForItem(id,d){return (state.dueDays&&state.dueDays[id]) || KNOWN_DAYS[id] || (id==='salary'?d.salaryDay:id==='rent'?d.rentDay:id==='child'?d.childDay:d.defaultDay)}
+function renderDueRows(){const root=$('dueRows');root.replaceChildren();for(const g of groups){const heading=document.createElement('h4');heading.textContent=g.name;root.append(heading);for(const item of g.items){if(variableIds.has(item[0])||item[0]==='salaryJ'||item[0]==='salaryO')continue;const row=document.createElement('div');row.className='due-row';const label=document.createElement('label');label.textContent=item[1];const input=document.createElement('input');input.type='number';input.min='1';input.max='31';input.value=state.dueDays?.[item[0]]??KNOWN_DAYS[item[0]]??(item[0]==='salary'?28:item[0]==='rent'?3:item[0]==='child'?15:'');input.placeholder='Tag 1–31';input.title='Tag des Monats';const hint=document.createElement('small');hint.textContent=state.dueDays?.[item[0]]?'Manuell':(DAY_QUALITY[item[0]]|| (KNOWN_DAYS[item[0]]?'Archiv':'Unbekannt · vorläufig'));hint.title=hint.textContent;row.append(label,input,hint);root.append(row);input.addEventListener('change',()=>{const n=Number(input.value);state.dueDays ||= {};if(input.value==='')delete state.dueDays[item[0]];else if(Number.isInteger(n)&&n>=1&&n<=31)state.dueDays[item[0]]=n;else{alert('Bitte einen Tag zwischen 1 und 31 eingeben.');return}save();safeRenderLiquidity()})}}}
+
+function loadLiquidity(){const data={...LDEFAULT,...(state.liquidity||{})};for(const id of LFIELDS)$(id==='anchor'?'liqAnchor':id==='target'?'liqTarget':id==='salary'?'liqSalary':id==='second'?'liqSecond':id).value=data[id]??''}
+function getLiquidity(){const data={};for(const id of LFIELDS)data[id]=$(id==='anchor'?'liqAnchor':id==='target'?'liqTarget':id==='salary'?'liqSalary':id==='second'?'liqSecond':id).value;return data}
+function parseMoney(v){
+ const raw=String(v??'').trim().replace(/\s|€/g,'');if(!raw)return NaN;
+ let clean=raw;
+ if(clean.includes(','))clean=clean.replace(/\./g,'').replace(',','.');
+ else if(/^[-+]?\d{1,3}(\.\d{3})+$/.test(clean))clean=clean.replace(/\./g,'');
+ const n=Number(clean);return Number.isFinite(n)?n:NaN;
+}
+function nvalue(v){const n=parseMoney(v);return Number.isFinite(n)?n:0}
+function dayInMonth(month,day){const [y,m]=month.split('-').map(Number);return month+'-'+String(Math.min(Math.max(1,nvalue(day)||15),new Date(y,m,0).getDate())).padStart(2,'0')}
+const variableIds=new Set(['food','kidsclothes','cleaner','adultclothes','restaurants','gifts','leisure','toys','hair','catfood','vet','school','repairs','train','charging','parking','rentalcar','primevideo']);
+const exactDays=KNOWN_DAYS;
+const HOUSE_DEFAULT=new Set(['food','kidsclothes','cleaner','adultclothes','restaurants','gifts','leisure','toys','hair','catfood','vet','school','repairs','train','parking','primevideo','liability']);
+const CARD_DEFAULT=new Set(['charging']);
+const ALL_ITEMS=groups.flatMap(g=>g.items);
+function accountFor(id){return state.accountRoutes[id]||(HOUSE_DEFAULT.has(id)?'second':CARD_DEFAULT.has(id)?'card':'salary')}
+function monthlyHouseBudget(month){return ALL_ITEMS.reduce((sum,item)=>sum+(accountFor(item[0])==='second'&&schedule(item).frequency==='m'?amount(item,month):0),0)}
+function updateTransferRecommendation(){const m=$('transferStart').value||'2026-11';const v=monthlyHouseBudget(m);$('transferRecommendation').textContent='Monatlicher Bedarf laut Kontozuordnung ('+m+'): '+euro(v)+'. Dies ist ein Planwert ohne Sicherheitspuffer und ohne Ansparen für Jahreszahlungen. Aktueller Dauerauftrag: '+euro(nvalue($('transferAmount').value))+'. Differenz: '+euro(nvalue($('transferAmount').value)-v)+'.';}
+function renderAccountRows(){const root=$('accountRows');root.replaceChildren();for(const g of groups){const h=document.createElement('h4');h.textContent=g.name;root.append(h);for(const item of g.items){const row=document.createElement('div');row.className='due-row';const label=document.createElement('label');label.textContent=item[1];const sel=document.createElement('select');for(const [value,text] of [['salary','GLS-Konto'],['second','Sparkassenkonto'],['card','Kreditkarte (kein Extra-Einzug)']]){const opt=document.createElement('option');opt.value=value;opt.textContent=text;sel.append(opt)}sel.value=accountFor(item[0]);sel.onchange=()=>{state.accountRoutes[item[0]]=sel.value;save();updateTransferRecommendation();safeRenderLiquidity()};row.append(label,sel);root.append(row)}}}
+function loadTransfer(){for(const [id,key] of [['transferAmount','amount'],['transferStart','start'],['transferDay','day']])$(id).value=state.transfer[key];renderAccountRows();updateTransferRecommendation()}
+for(const [id,key] of [['transferAmount','amount'],['transferStart','start'],['transferDay','day']])$(id).addEventListener('change',()=>{state.transfer[key]=key==='amount'?nvalue($(id).value):key==='day'?Math.min(31,Math.max(1,Number($(id).value)||1)):$(id).value;save();updateTransferRecommendation();safeRenderLiquidity()});
+$('transferSuggested').onclick=()=>{const v=monthlyHouseBudget($('transferStart').value||'2026-11');state.transfer.amount=Math.round(v*100)/100;$('transferAmount').value=String(state.transfer.amount).replace('.',',');save();updateTransferRecommendation();safeRenderLiquidity()};
+loadTransfer();
+
+function renderLiquidity(){
+ const d=getLiquidity(),out=$('liqEvents');out.replaceChildren();$('liqAudit').replaceChildren();
+ const anchor=d.anchor,target=d.target;const valid=/^\d{4}-\d{2}-\d{2}$/;
+ if(!valid.test(anchor)||!valid.test(target)||target<anchor){$('liqWarning').textContent='Bitte einen gültigen Prognosetag ab oder am Ausgangsstichtag wählen.';$('liqStatus').textContent='Datum prüfen';return}
+ if(![d.salary,d.second].every(x=>x!==''&&Number.isFinite(parseMoney(x)))){$('liqWarning').textContent='Bitte beide Girokontostände eintragen.';for(const id of ['liqAvailable','liqSalaryResult','liqSecondResult','liqBanksResult','liqCardsResult','liqNetResult','liqMinResult'])$(id).textContent='–';$('liqStatus').textContent='Es fehlen die beiden Girokontostände. Trage sie oben ein.';return}
+ const events=[];let salary=nvalue(d.salary),second=nvalue(d.second),card1=nvalue(d.card1Open),card2=nvalue(d.card2Open);
+ const notices=[];if(anchor>='2026-11-01')notices.push('Die Stromnachzahlung vom 01.11.2026 ist im November-Monatsplan enthalten. In der Tagesprognose erscheint sie nur, wenn der Ausgangsstichtag vor dem 01.11. liegt; bei späterem Stichtag muss sie bereits im Kontostand enthalten sein.');if(d.card1Open===''||d.card2Open==='')notices.push('Leere Kreditkartenfelder als 0 € gerechnet – bitte prüfen.');if(anchor<'2026-11-01')notices.push('Oktober 2026: Regelmäßige Monatspositionen werden rückwirkend aus dem Novemberplan übernommen, soweit keine abweichende Laufzeit hinterlegt ist. Einmalige, vierteljährliche und jährliche Oktoberzahlungen sind ohne bestätigte Termine nicht automatisch ergänzt.');if(target>'2027-12-31')notices.push('Die Monatsplanung endet Dezember 2027; spätere Tage enthalten keine fortgeschriebenen Planbuchungen.');
+ for(let m=new Date(Number(anchor.slice(0,4)),Number(anchor.slice(5,7))-1,1);m<=new Date(Number(target.slice(0,4)),Number(target.slice(5,7))-1,1);m.setMonth(m.getMonth()+1)){
+  const month=m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0');if(month<'2026-10'||month>'2027-12')continue;
+  const dim=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();
+  for(const g of groups)for(const item of g.items){let amt;
+   if(month==='2026-10'){
+    // Nur reguläre Monatspositionen rückwirkend aufnehmen. Keine zukünftigen
+    // Einmalposten, keine Quartals-/Jahreskosten und keine explizit später gestarteten Verträge.
+    const sc=schedule(item);
+    if(sc.frequency!=='m'||(item[4]&&item[4]>'2026-10')||(state.schedules[item[0]]?.start&&state.schedules[item[0]].start>'2026-10'))continue;
+    amt=Number(state.values[item[0]]??item[2]);
+    for(const change of [...(state.overrides[item[0]]||[])].sort((a,b)=>a.from.localeCompare(b.from)))if(change.from<=month)amt=Number(change.amount);
+    if(item[0]==='rentalcar')continue;
+   }else amt=amount(item,month);
+   if(!Number.isFinite(amt)||!amt||accountFor(item[0])==='card')continue;
+   const v=g.id==='income'||(g.id==='rental'&&item[0]==='rent')?amt:-amt;if(variableIds.has(item[0])){const daily=Math.round(v*100/dim)/100;let assigned=0;for(let day=1;day<=dim;day++){const date=dayInMonth(month,day),part=day===dim?Math.round((v-assigned)*100)/100:daily;assigned=Math.round((assigned+part)*100)/100;if(date>anchor&&date<=target&&part)events.push({date,label:item[1]+' (Tagesbudget)',value:part,account:accountFor(item[0]),budgetId:item[0]})}}else{let day=dayForItem(item[0],d);const date=plannedDate(item[0],month,d);if(date>anchor&&date<=target)events.push({date,label:item[1],value:v,account:accountFor(item[0])})}}
+  if(month>=state.transfer.start&&Number(state.transfer.amount)>0){const date=dayInMonth(month,state.transfer.day);if(date>anchor&&date<=target){events.push({date,label:'Interne Umbuchung → Sparkassenkonto',value:-Number(state.transfer.amount),account:'salary',transfer:true});events.push({date,label:'Interne Umbuchung ← GLS-Konto',value:Number(state.transfer.amount),account:'second',transfer:true})}}
+  if(state.bonusOn&&month==='2027-05'){const date=dayInMonth(month,d.salaryDay);if(date>anchor&&date<=target)events.push({date,label:'Möglicher Bonus (Szenario)',value:nvalue(state.bonus),account:'salary'})}
+   for(const c of state.customCosts||[]){if(c.month!==month||!(Number(c.amount)>0))continue;const date=dayInMonth(month,Number(c.day)||15);if(date>anchor&&date<=target)events.push({date,label:c.name||'Zusätzliche geplante Ausgabe',value:-Number(c.amount),account:'salary'})}
+ }
+ for(let i=1;i<=2;i++){
+  const open=nvalue(d['card'+i+'Open']),bill=nvalue(d['card'+i+'Bill']),name=d['card'+i+'Name']||'Kreditkarte '+i;
+  if(open<0||bill<0||bill>open){$('liqWarning').textContent='Bei '+name+' muss der nächste Einzug zwischen 0 und dem offenen Gesamtbetrag liegen.';return}
+  const rest=Math.round((open-bill)*100)/100;
+  for(const [date,amount,label] of [[d['card'+i+'Date'],bill,'Nächster Einzug'],[d['card'+i+'RestDate'],rest,'Einzug Restbetrag']]){
+   if(amount>0&&date&&date>anchor&&date<=target)events.push({date,label:name+' – '+label,value:-amount,account:'salary',card:i});
+   if(amount>0&&!date)notices.push(name+': Für '+label.toLowerCase()+' ist kein Einzugstag hinterlegt.');
+   if(amount>0&&date&&date<=anchor)notices.push(name+': Einzugstag liegt am oder vor dem Ausgangsstichtag; bitte Saldo und Termin aktualisieren.');
+  }
+ }
+ events.sort((a,b)=>a.date.localeCompare(b.date)||((a.card?1:0)-(b.card?1:0)));
+ let min=salary+second;for(const e of events){if(e.account==='second')second+=e.value;else salary+=e.value;if(e.card===1)card1=Math.max(0,card1+e.value);if(e.card===2)card2=Math.max(0,card2+e.value);min=Math.min(min,salary+second)}
+ // Rechenkontrolle: Kontostand am Stichtag + tatsächliche prognostizierte Bewegungen.
+ const audit=$('liqAudit');
+ const makeLine=(label,value,bold=false)=>{const row=document.createElement('div');row.className='auditline';const a=document.createElement('span');a.textContent=label;const b=document.createElement(bold?'strong':'span');b.textContent=euro(value);row.append(a,b);audit.append(row)};
+ makeLine('GLS-Konto am Ausgangsstichtag',nvalue(d.salary));
+ makeLine('Sparkassenkonto am Ausgangsstichtag',nvalue(d.second));
+ const monthly=new Map();
+ for(const e of events){const month=e.date.slice(0,7);if(!monthly.has(month))monthly.set(month,{incomeSalary:0,outSalary:0,incomeSecond:0,outSecond:0,cards:0});const a=monthly.get(month);if(e.account==='second'){if(e.value>=0)a.incomeSecond+=e.value;else a.outSecond-=e.value}else{if(e.value>=0)a.incomeSalary+=e.value;else a.outSalary-=e.value}if(e.card)a.cards-=e.value;}
+ for(const [month,a] of monthly){const heading=document.createElement('h4');heading.textContent=month.slice(5)+'.'+month.slice(0,4);audit.append(heading);makeLine('Eingänge GLS-Konto',a.incomeSalary);makeLine('Ausgänge GLS-Konto (inkl. Kreditkarten)',-a.outSalary);if(a.cards)makeLine('Davon Kreditkarteneinzüge (bereits enthalten)',-a.cards);if(a.incomeSecond||a.outSecond){makeLine('Eingänge Sparkassenkonto',a.incomeSecond);makeLine('Ausgänge Sparkassenkonto',-a.outSecond)}}
+ makeLine('Prognose GLS-Konto',salary,true);makeLine('Prognose Sparkassenkonto',second,true);
+ const auditDiff=Math.round((nvalue(d.salary)+nvalue(d.second)+events.reduce((sum,e)=>sum+e.value,0)-salary-second)*100);
+ const check=document.createElement('p');check.className='explain';check.textContent=auditDiff===0?'✓ Rechenkontrolle: Ausgangssalden plus alle Bewegungen ergeben die prognostizierten Girokontostände.':'⚠ Abweichung in der Rechenkontrolle: '+euro(auditDiff/100);audit.append(check);
+ const total=salary+second,liquid=total-card1-card2;
+ for(const [id,value] of [['liqAvailable',liquid],['liqSalaryResult',salary],['liqSecondResult',second],['liqBanksResult',total],['liqCardsResult',-(card1+card2)],['liqNetResult',liquid],['liqMinResult',min]])$(id).textContent=euro(value);
+ $('liqAvailable').className=liquid<0?'negative':'positive';$('liqStatus').textContent='Berechnet für '+target.split('-').reverse().join('.')+' · '+events.length+' Bewegungen berechnet (Tagesbudgets zusammengefasst angezeigt)';
+ notices.push('Gehalt J und O werden separat auf das GLS-Konto gebucht. Bankfeiertage nach deutschem/Berliner Kalender berücksichtigt; individuelle Arbeitgeber-Abweichungen sind möglich.');if(!notices.length)notices.push('Prognose, keine Bankdaten: Zahlungstage sind teilweise Annahmen. Kreditkarten-Neuumsätze nach dem Ausgangstag werden nicht automatisch erzeugt.');
+ notices.push('Interne Umbuchungen sind auf beiden Konten gegengleich enthalten und ändern die Gesamtliquidität nicht. Kreditkarten-Budgetpositionen werden nicht nochmals als Bankabbuchung berücksichtigt; neue Kartenumsätze nach dem Stichtag sind nicht automatisch als Kartenverbindlichkeit erfasst.');notices.push('Monatliche Verbrauchsbudgets sind Planwerte; bereits enthaltene Kreditkartenkäufe müssen für eine exakte Prognose abgeglichen werden.');
+ $('liqWarning').textContent=notices.join(' ');
+ if(!events.length){out.textContent='Keine geplanten Bewegungen in diesem Zeitraum.';return}
+ // Anzeige verdichten, ohne die taggenaue Berechnung oder die Salden zu verändern.
+ const budgetMap=new Map();const oneOff=[];
+ for(const e of events){
+  if(e.budgetId){const old=budgetMap.get(e.budgetId);if(old){old.value=Math.round((old.value+e.value)*100)/100;old.last=e.date;old.days++}else budgetMap.set(e.budgetId,{...e,last:e.date,days:1});}
+  else oneOff.push(e);
+ }
+ function appendEvent(date,label,value){const row=document.createElement('div');row.className='forecast-event';for(const t of [date,label,euro(value)]){const span=document.createElement('span');span.textContent=t;row.append(span)}out.append(row)}
+ if(budgetMap.size){const heading=document.createElement('h4');heading.textContent='Tagesbudgets – zusammengefasst';out.append(heading);for(const b of budgetMap.values())appendEvent(b.date.slice(8)+'.'+b.date.slice(5,7)+'.–'+b.last.slice(8)+'.'+b.last.slice(5,7)+'.',b.label+' · '+b.days+' Tage',b.value)}
+ const heading=document.createElement('h4');heading.textContent='Einzelne Kontobewegungen';out.append(heading);
+ for(const e of oneOff)appendEvent(e.date.slice(8)+'.'+e.date.slice(5,7)+'.',e.label+(e.card?' · GLS-Konto':e.transfer?' · Umbuchung':''),e.value);
+
+}
+$('tabPlan').onclick=()=>{$('planView').classList.remove('hidden');$('liquidityView').classList.add('hidden');$('tabPlan').classList.add('active');$('tabLiquidity').classList.remove('active')};
+function safeRenderLiquidity(){try{renderLiquidity()}catch(err){$('liqStatus').textContent='Berechnung fehlgeschlagen: '+err.message;console.error(err)}}
+$('calcLiquidity').onclick=()=>{safeRenderLiquidity();$('liqStatus').scrollIntoView({behavior:'smooth',block:'center'})};
+$('tabLiquidity').onclick=()=>{$('planView').classList.add('hidden');$('liquidityView').classList.remove('hidden');$('tabPlan').classList.remove('active');$('tabLiquidity').classList.add('active');safeRenderLiquidity()};
+$('editBalances').onclick=()=>{
+ const salary=prompt('GLS-Konto – aktuellen Kontostand in Euro eingeben (auch negativ möglich):', $('liqSalary').value);
+ if(salary===null)return;
+ const second=prompt('Sparkassenkonto – aktuellen Kontostand in Euro eingeben (auch negativ möglich):', $('liqSecond').value);
+ if(second===null)return;
+ if(salary.trim()===''||second.trim()===''||!Number.isFinite(parseMoney(salary))||!Number.isFinite(parseMoney(second))){alert('Bitte beide Kontostände als gültige Euro-Beträge eingeben.');return}
+ $('liqSalary').value=salary;$('liqSecond').value=second;
+ state.liquidity=getLiquidity();save();safeRenderLiquidity();
+};loadLiquidity();renderDueRows();if(!storage.setItem('finanzkompass_storage_test','ok'))$('storageNotice').textContent='Achtung: Die Browser-Vorschau blockiert die Speicherung. Bitte lokal in Safari öffnen.';else storage.removeItem('finanzkompass_storage_test');for(const id of LFIELDS){const element=$(id==='anchor'?'liqAnchor':id==='target'?'liqTarget':id==='salary'?'liqSalary':id==='second'?'liqSecond':id);element.addEventListener('change',()=>{state.liquidity=getLiquidity();save();safeRenderLiquidity()});element.addEventListener('input',()=>{state.liquidity=getLiquidity();save()})}
+
+
+// Jahresplanung: ausschließlich lokal im Browser; keine privaten Vorgabewerte im Quelltext.
+state.annual ||= {reserve:0,cap:0,holiday:0,renovation:0,dayMonth:'07-15',extras:[]};
+const annual=state.annual;
+const annIds=['annualReserve','annualCap','annualHoliday','annualRenovation'];
+for(const year of Array.from({length:12},(_,i)=>2027+i)) {const o=document.createElement('option');o.value=year;o.textContent=year;$('annualYear').append(o)}
+$('annualYear').value='2027';
+for(const [id,key] of [['annualReserve','reserve'],['annualCap','cap'],['annualHoliday','holiday'],['annualRenovation','renovation']]){$(id).value=annual[key]??0;$(id).addEventListener('change',()=>{annual[key]=Math.max(0,Number($(id).value)||0);save();renderAnnual()})}
+$('annualDay').value='2027-'+(annual.dayMonth||'07-15');
+$('annualYear').onchange=()=>{ $('annualDay').value=$('annualYear').value+'-'+(annual.dayMonth||'07-15');renderAnnual()};
+$('annualDay').onchange=()=>{if($('annualDay').value){annual.dayMonth=$('annualDay').value.slice(5);save();renderAnnual()}};
+function annualExtraRender(){const host=$('annualExtras');host.replaceChildren();for(const [i,e] of annual.extras.entries()){const row=document.createElement('div');row.className='forecast-grid';row.style.marginBottom='10px';const name=document.createElement('input');name.placeholder='Bezeichnung';name.value=e.name||'';const year=document.createElement('input');year.type='number';year.min='2027';year.max='2050';year.value=e.year||2029;const value=document.createElement('input');value.type='number';value.min='0';value.step='0.01';value.placeholder='Betrag (€)';value.value=e.amount||0;const remove=document.createElement('button');remove.type='button';remove.textContent='Entfernen';for(const [el,key] of [[name,'name'],[year,'year'],[value,'amount']])el.onchange=()=>{e[key]=key==='name'?el.value:Number(el.value)||0;save();renderAnnual()};remove.onclick=()=>{annual.extras.splice(i,1);save();annualExtraRender();renderAnnual()};row.append(name,year,value,remove);host.append(row)}}
+$('annualAdd').onclick=()=>{annual.extras.push({name:'',year:Number($('annualYear').value),amount:0});save();annualExtraRender();renderAnnual()};
+function annualNumbers(y){let income=0,expenses=0;for(let m=1;m<=12;m++){const month=y+'-'+String(m).padStart(2,'0');for(const g of groups)for(const item of g.items){const v=signed(g,item,month);if(v>=0)income+=v;else expenses-=v}if(state.bonusOn&&month==='2027-05')income+=Number(state.bonus)||0;for(const c of state.customCosts||[])if(c.month===month)expenses+=Math.max(0,Number(c.amount)||0)}const holiday=y>=2029?Number(annual.holiday)||0:0,renovation=Number(annual.renovation)||0,extras=annual.extras.filter(e=>Number(e.year)===y).reduce((a,e)=>a+Math.max(0,Number(e.amount)||0),0);const free=income-expenses-holiday-renovation-extras;return {income,expenses,holiday,renovation,extras,free}}
+function renderAnnual(){const y=Number($('annualYear').value),n=annualNumbers(y),host=$('annualResult');host.replaceChildren();const line=(label,val,strong=false)=>{const r=document.createElement('div');r.className='forecast-row';const a=document.createElement(strong?'strong':'span');a.textContent=label;const b=document.createElement(strong?'strong':'span');b.textContent=euro(val);r.append(a,b);host.append(r)};line('Laufende Einnahmen',n.income);line('Laufende Ausgaben (inkl. geplanter Projekte)',-n.expenses);line('Zusätzlicher Urlaub',-n.holiday);line('Zusätzliche Renovierungsrücklage',-n.renovation);line('Weitere Sonderausgaben',-n.extras);line('Jahresüberschuss nach Sonderausgaben',n.free,true);line('Gewünschte Reserve (konservativer Abzug)',-Number(annual.reserve||0));const theoretical=Math.max(0,Math.min(Number(annual.cap)||0,n.free-(Number(annual.reserve)||0)));line('Rechnerischer jährlicher Sondertilgungs-Spielraum',theoretical,true);const note=document.createElement('p');note.className='explain';note.textContent='Plantermin: '+$('annualDay').value.split('-').reverse().join('.')+'. Dieser Wert ist kein Zahlungsfreigabebetrag: Ein Jahresüberschuss belegt nicht, dass das Geld schon im Juli verfügbar ist. Die Reserve wird hier vereinfachend einmal vom Jahresüberschuss abgezogen.';host.append(note);const list=$('annualYears');list.replaceChildren();for(let year=2027;year<=2038;year++){const a=annualNumbers(year),row=document.createElement('div');row.className='forecast-row';const l=document.createElement('span');l.textContent=String(year);const v=document.createElement('span');v.textContent=euro(a.free);row.append(l,v);list.append(row)}}
+annualExtraRender();
+$('tabAnnual').onclick=()=>{$('planView').classList.add('hidden');$('liquidityView').classList.add('hidden');$('annualView').classList.remove('hidden');for(const id of ['tabPlan','tabLiquidity'])$(id).classList.remove('active');$('tabAnnual').classList.add('active');renderAnnual()};
+for(const [tab,view] of [['tabPlan','planView'],['tabLiquidity','liquidityView']]){const old=$(tab).onclick;$(tab).onclick=()=>{old();$('annualView').classList.add('hidden');$('tabAnnual').classList.remove('active')}}
+</script><script>/* Version 3.1: reine Neuordnung der Oberfläche; Berechnung und Datenspeicher unverändert. */
+(()=>{
+ const $=id=>document.getElementById(id);
+ const plan=$('planView'), detail=$('liquidityView'), annual=$('annualView');
+ const nav=document.querySelector('.tabs');
+ $('tabPlan').textContent='📊 Übersicht'; $('tabLiquidity').textContent='⚙️ Grunddaten'; $('tabAnnual').textContent='🏡 Jahresplanung';
+ document.querySelector('header p').textContent='Private Haushaltsplanung · iPhone-PWA 3.1';
+ const intro=document.createElement('p');intro.className='muted';intro.textContent='Monatsrechnung und Liquiditätsprognose auf einen Blick. Alle Eingaben und Einzelpositionen findest du unter Grunddaten.';
+ plan.prepend(intro);
+ const stats=plan.querySelector('.stats');
+ const monthPanel=stats.previousElementSibling;
+ const summary=document.createElement('div');summary.className='dashboard-summary';summary.innerHTML='<h2>Monatsrechnung</h2>';
+ plan.insertBefore(summary,monthPanel);summary.append(monthPanel,stats);
+ const detailHeading=document.createElement('div');detailHeading.className='panel';detailHeading.innerHTML='<h2>⚙️ Grunddaten & Eingaben</h2><p class="muted">Hier bearbeitest du Gehälter, Ausgaben, Buchungstage, Kontostände und Kreditkarten. Änderungen wirken sich unmittelbar auf die Übersicht aus.</p>';
+ detail.prepend(detailHeading);
+ const detailMonthly=document.createElement('div');detailMonthly.className='panel';detailMonthly.innerHTML='<h3>Alle Einnahmen & Ausgabepositionen</h3><p class="muted">Tippe auf die Position zum Bearbeiten. Für die Abbuchungstage und Kontozuordnung weiter unten die entsprechenden Bereiche öffnen.</p>';
+ detailHeading.after(detailMonthly);
+ const groups=$('groups'); const controls=groups.previousElementSibling;const hint=controls.previousElementSibling;
+ detailMonthly.append(hint,controls,groups);
+ const decisions=$('decisionsPanel');detailMonthly.after(decisions);
+ const backups=$('backup').closest('.actions');detail.append(backups);
+ const trailing=[...plan.querySelectorAll('p.muted')].filter(p=>p.textContent.includes('Speicherung nur lokal')||p.textContent.includes('Finanzplanung wird nur'));
+ trailing.forEach(p=>detail.append(p));
+ // Kontostände, Karten, Umbuchung und Zahlungstage gehören zu den Grunddaten.
+ const panels=[...detail.querySelectorAll(':scope > .panel')];
+ const resultPanel=panels.find(p=>p.querySelector('#liqAvailable'));
+ if(resultPanel){
+  const forecastBox=document.createElement('div');forecastBox.className='dashboard-forecast';forecastBox.innerHTML='<h2>Liquiditätsprognose</h2><p class="muted">Das Prognosedatum kannst du hier ändern. Kontostände und Kreditkarten pflegst du unter Grunddaten.</p>';
+  summary.after(forecastBox);
+  const target=$('liqTarget').closest('.field');forecastBox.append(target);
+  forecastBox.append(resultPanel);
+  const calc=$('calcLiquidity');const status=$('liqStatus');
+  forecastBox.insertBefore(calc,resultPanel);forecastBox.insertBefore(status,resultPanel);
+  // Ein zusätzliches Rechenfeld für die tägliche Prognose bleibt sichtbar.
+ }
+ // Die Detailprüfung der Prognose soll ebenfalls in der Übersicht verfügbar sein.
+ for(const id of ['liqAudit','liqEvents']){
+  const el=$(id);if(el){const p=el.closest('.panel');if(p)plan.append(p)}
+ }
+ // Rechenkontrolle und Monatsentwicklung bleiben in der Übersicht, aber einklappbar.
+ for(const id of ['audit','chart','liqAudit','liqEvents']){
+  const el=$(id);if(!el)continue;const panel=el.closest('.panel');if(!panel)continue;
+  const title=panel.querySelector('h3')?.textContent||'Details';
+  const d=document.createElement('details');d.className='dashboard-more';const s=document.createElement('summary');s.textContent=title;d.append(s);
+  while(panel.firstChild)d.append(panel.firstChild);
+  panel.append(d);
+ }
+ // Dashboard nicht mit Positionslisten überladen.
+ const note=plan.querySelector('.note');if(note)detailMonthly.append(note);
+ // Kontostände- und Karteneingaben unter Grunddaten, Prognoseergebnisse auf Übersicht.
+ const show=which=>{
+  for(const [id,el] of [['tabPlan',plan],['tabLiquidity',detail],['tabAnnual',annual]]){
+   el.classList.toggle('hidden',id!==which);$(id).classList.toggle('active',id===which);
+  }
+  if(which==='tabPlan'){try{if(typeof safeRenderLiquidity==='function')safeRenderLiquidity()}catch(e){console.warn(e)}}
+  if(which==='tabAnnual'){try{renderAnnual()}catch(e){console.warn(e)}}
+  window.scrollTo({top:0,behavior:'instant'});
+ };
+ $('tabPlan').onclick=()=>show('tabPlan');$('tabLiquidity').onclick=()=>show('tabLiquidity');$('tabAnnual').onclick=()=>show('tabAnnual');
+ show('tabPlan');
+})();
+</script><script>if ("serviceWorker" in navigator && location.protocol === "https:") window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));</script><!-- Finanzkompass 3.3: Jahresplanung, ausschließlich lokale Daten -->
+<style>
+.fk33-hero{background:#173a5a;color:white;padding:18px;border-radius:14px;margin:12px 0}.fk33-hero strong{display:block;font-size:clamp(22px,5vw,32px);margin:6px 0}.fk33-hero small{color:#d5e3ef}.fk33-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fk33-field{min-width:0;margin:6px 0}.fk33-field label{display:block;font-size:13px;margin-bottom:4px}.fk33-field input,.fk33-field select{width:100%;min-width:0;box-sizing:border-box}.fk33-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #dfe7ef;padding:8px 0}.fk33-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}.fk33-table{border-collapse:collapse;min-width:850px;width:100%;font-size:12px}.fk33-table td,.fk33-table th{padding:10px 8px;border-bottom:1px solid #dfe7ef;text-align:right;white-space:nowrap}.fk33-table td:first-child,.fk33-table th:first-child{text-align:left}.fk33-table th{background:#e8f0f7}.fk33-entry{border-bottom:1px solid #dfe7ef;padding:12px 0}.fk33-note{font-size:12px;line-height:1.5;color:#65778a}.fk33-alert{background:#fff2dd;color:#805219;padding:10px;border-radius:8px}.fk33-buttons{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.fk33-buttons button{min-height:40px}
+</style>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), fmt=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(n), nonneg=x=>Math.max(0,Number(x)||0), ym=(y,m)=>`${y}-${String(m).padStart(2,'0')}`;
+const config=state.fk32 ||= {};
+const defaults={openingReserve:null,minimumReserve:null,mortgageBalance:null,mortgageRate:null,mortgagePayment:null,mortgageAsOf:'2027-01',fixedRateEnd:'',followUpRate:null,originalPrincipal:null,repaymentCap:null,repaymentMonth:7,repaymentDay:31,repaymentPolicy:'available',annualRepayments:{},specialExpenses:[],vacationAmount:null,vacationStart:2029,carRepairAnnual:null,carSaleProceeds:null,carLoanSettlement:null,carSaleMonth:'2027-02',propertySaleOn:false,propertySaleYear:2030,propertySaleNet:null,bonusMonth:'2027-05',monthlyTransferTarget:null};
+for(const [k,v] of Object.entries(defaults))if(config[k]===undefined)config[k]=v;
+// Die fest vereinbarten Zahlungstermine gelten ab 3.3.
+config.repaymentMonth=7;config.repaymentDay=31;
+if(!Array.isArray(config.specialExpenses))config.specialExpenses=[];
+if(!config.annualRepayments||typeof config.annualRepayments!=='object')config.annualRepayments={};
+const root=$('annualView');
+// Alte Jahresplanung wird nicht gelöscht, sondern nur ausgeblendet.
+for(const child of [...root.children])child.classList.add('hidden');
+const mk=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
+const section=(title,desc)=>{const p=mk('section','panel'),h=mk('h2','',title);p.append(h);if(desc)p.append(mk('p','fk33-note',desc));root.append(p);return p};
+const field=(parent,label,key,kind='number')=>{const w=mk('div','fk33-field'),l=mk('label','',label),i=document.createElement('input');i.type=kind;if(kind==='number'){i.min='0';i.step='any'}i.value=config[key]??'';i.onchange=()=>{config[key]=kind==='number'?(i.value.trim()===''?null:Number(i.value)):i.value;save();update()};w.append(l,i);parent.append(w);return i};
+const grid=(parent,items)=>{const g=mk('div','fk33-grid');items.forEach(a=>field(g,...a));parent.append(g)};
+const hero=mk('div','fk33-hero'),ht=mk('small','', '🏡 Eigenheim · voraussichtliche vollständige Tilgung'),hv=mk('strong','', 'Berechnung wird vorbereitet'),hd=mk('small');hero.append(ht,hv,hd);$('planView').prepend(hero);
+const spark=mk('section','panel'),sh=mk('h2','', '🏦 Sparkassenkonto · monatlicher Bedarf'),sb=mk('div'),sn=mk('p','fk33-note','Die interne Umbuchung ist keine Ausgabe. Jahreszahlungen sind nicht im monatlichen Grundbedarf enthalten.');spark.append(sh,sb,sn);const summary=$('planView').querySelector('.dashboard-summary');if(summary)summary.after(spark);else hero.after(spark);
+const loan=section('🏡 Darlehen und Rücklagen','Die Restschuld gilt zum Monatsanfang des angegebenen Stichtags. Die regelmäßige Darlehensrate bleibt in den importierten Haushaltsausgaben enthalten.');
+grid(loan,[['Restschuld zum Stichtag (€)','mortgageBalance'],['Stichtag (Monat)','mortgageAsOf','month'],['Sollzinssatz p. a. (%)','mortgageRate'],['Monatliche Regelrate (€)','mortgagePayment'],['Ende der Sollzinsbindung (Monat)','fixedRateEnd','month'],['Anschlusszins p. a. (%)','followUpRate'],['Ursprüngliche Darlehenssumme (€)','originalPrincipal'],['Maximale Sondertilgung pro Jahr (€)','repaymentCap'],['Rücklagen zum Stichtag (€)','openingReserve'],['Mindestreserve (€)','minimumReserve']]);
+loan.append(mk('p','fk33-note','Sonderausgaben: 1. Januar. Sondertilgung: 31. Juli. Rücklagenstand: 31. Dezember. Die Darlehensparameter werden ausschließlich auf deinem Gerät gespeichert.'));
+const strategy=mk('div','fk33-field'),sl=mk('label','', 'Sondertilgungsstrategie'),sel=document.createElement('select');for(const [v,t] of [['available','Verfügbaren Betrag einsetzen'],['manual','Jährlichen Betrag manuell festlegen'],['none','Keine Sondertilgung']]){const o=document.createElement('option');o.value=v;o.textContent=t;sel.append(o)}sel.value=config.repaymentPolicy;sel.onchange=()=>{config.repaymentPolicy=sel.value;save();update()};strategy.append(sl,sel);loan.append(strategy);
+const manual=mk('div');loan.append(manual);
+const scen=section('🎛️ Szenarien','Der Verkauf der zusätzlichen leerstehenden Immobilie verändert keine Mieteinnahmen oder Kosten des vermieteten Reihenhauses.');
+function toggle(parent,label,get,set){const l=mk('label','check'),i=document.createElement('input');i.type='checkbox';i.checked=!!get();i.onchange=()=>{set(i.checked);save();update()};l.append(i,document.createTextNode(' '+label));parent.append(l);return i}
+const car=toggle(scen,'Auto verkauft',()=>state.eqaSold,v=>{state.eqaSold=v;const old=$('eqaSold');if(old)old.checked=v});
+grid(scen,[['Zusätzliche Autoreparaturen pro Jahr bei Behalten (€)','carRepairAnnual'],['Auto-Verkaufserlös (€)','carSaleProceeds'],['Restkredit-Ablösung bei Verkauf (€)','carLoanSettlement'],['Verkaufsmonat Auto','carSaleMonth','month']]);
+const bonus=toggle(scen,'Optionalen Bonus einrechnen',()=>state.bonusOn,v=>{state.bonusOn=v;const old=$('bonusOn');if(old)old.checked=v});
+scen.append(mk('p','fk33-note','Der Bonusbetrag kommt aus deinen vorhandenen Grunddaten.'));
+field(scen,'Bonusmonat','bonusMonth','month');
+toggle(scen,'Zusätzliche leerstehende Immobilie verkaufen',()=>config.propertySaleOn,v=>config.propertySaleOn=v);
+grid(scen,[['Verkaufsjahr','propertySaleYear'],['Nettoerlös nach allen Kosten (€)','propertySaleNet']]);
+const exp=section('🧾 Zentrale Sonderausgabenliste','Alle hier eingetragenen Beträge werden am 1. Januar des betreffenden Jahres abgezogen. Keine Ausgabe doppelt erfassen, wenn sie schon in der Monatsplanung steht.');
+grid(exp,[['Jährlicher Urlaub ab Startjahr (€)','vacationAmount'],['Urlaub ab Jahr','vacationStart']]);
+const entries=mk('div');exp.append(entries);const actions=mk('div','fk33-buttons'),add=mk('button','', '+ Sonderausgabe');add.type='button';add.onclick=()=>{config.specialExpenses.push({name:'',year:2027,amount:0,category:'Sonstiges',recurring:false});save();drawEntries();update()};actions.append(add);exp.append(actions);
+function drawEntries(){entries.replaceChildren();for(const [idx,e] of config.specialExpenses.entries()){const wrap=mk('div','fk33-entry'),g=mk('div','fk33-grid');function inp(label,key,type='text'){const w=mk('div','fk33-field'),l=mk('label','',label),i=document.createElement('input');i.type=type;i.value=e[key]??'';if(type==='number'){i.min='0';i.step='any'}i.onchange=()=>{e[key]=type==='number'?Number(i.value)||0:i.value;save();update()};w.append(l,i);g.append(w)}inp('Beschreibung','name');inp('Jahr','year','number');inp('Betrag (€)','amount','number');const cat=mk('div','fk33-field'),cl=mk('label','', 'Kategorie / Immobilie'),cs=document.createElement('select');for(const c of ['Eigenheim','Vermietete Immobilie','Weitere Immobilie','Familie','Auto','Urlaub','Sonstiges']){const o=document.createElement('option');o.value=c;o.textContent=c;cs.append(o)}cs.value=e.category||'Sonstiges';cs.onchange=()=>{e.category=cs.value;save()};cat.append(cl,cs);g.append(cat);wrap.append(g);toggle(wrap,'Jährlich ab diesem Jahr wiederholen',()=>e.recurring,v=>e.recurring=v);const remove=mk('button','', 'Entfernen');remove.type='button';remove.onclick=()=>{config.specialExpenses.splice(idx,1);save();drawEntries();update()};wrap.append(remove);entries.append(wrap)}}
+const output=section('📊 Jahresübersicht','Sonderausgaben werden am 1. Januar belastet; die maximal mögliche Sondertilgung wird am 31. Juli vor der Zahlung ermittelt.');const status=mk('p','fk33-note'),scroll=mk('div','fk33-scroll');output.append(status,scroll);
+const annualLimit=()=>config.repaymentCap!==null?nonneg(config.repaymentCap):(config.originalPrincipal!==null?nonneg(config.originalPrincipal)*0.05:0);
+const ready=()=>config.mortgageBalance!==null&&config.mortgageRate!==null&&config.mortgagePayment!==null&&config.mortgageAsOf&&Number(config.mortgageBalance)>0&&Number(config.mortgagePayment)>0;
+const costs=y=>{let n=y>=Number(config.vacationStart)?nonneg(config.vacationAmount):0;for(const e of config.specialExpenses)if(e.recurring?y>=Number(e.year):y===Number(e.year))n+=nonneg(e.amount);return n};
+function cashFlow(key,paidOff){let net=0;for(const g of groups)for(const item of g.items){let v=signed(g,item,key);if(paidOff&&item[0]==='mortgage')v=0;net+=v}for(const c of state.customCosts||[])if(c.month===key)net-=nonneg(c.amount);
+// Bonus einmalig; unabhängig vom ursprünglichen fest kodierten Monat.
+if(state.bonusOn&&key===(config.bonusMonth||'2027-05'))net+=Number(state.bonus)||0;
+// Bestehende Fahrzeug-Raten und Mietwagen-Szenarien werden bereits durch amount() gesteuert.
+if(!state.eqaSold&&key.slice(5)==='12')net-=nonneg(config.carRepairAnnual);
+if(state.eqaSold&&key===config.carSaleMonth)net+=nonneg(config.carSaleProceeds)-nonneg(config.carLoanSettlement);
+if(config.propertySaleOn&&key===`${Math.floor(Number(config.propertySaleYear))}-12`)net+=nonneg(config.propertySaleNet);
+return net}
+function calculate(){const hasLoan=ready(),start=config.mortgageAsOf||'2027-01',first=Math.max(2027,Number(start.slice(0,4))||2027),last=2075;let reserve=Number(config.openingReserve)||0,balance=nonneg(config.mortgageBalance),payoff=null,rows=[],warnings=[];
+if(!groups.length)warnings.push('Keine privaten Finanzpositionen importiert.');
+if(config.openingReserve===null)warnings.push('Rücklagen zum Stichtag fehlen; Jahresendstände sind nicht belastbar.');
+if(config.minimumReserve===null)warnings.push('Mindestreserve fehlt.');
+if(!hasLoan)warnings.push('Restschuld, Stichtag, Sollzins oder Regelrate fehlen.');
+if(config.fixedRateEnd&&!Number.isFinite(Number(config.followUpRate)))warnings.push('Anschlusszins fehlt.');
+if(config.fixedRateEnd&&config.followUpRate===null)warnings.push('Anschlusszins fehlt; ab Zinsbindungsende wird keine Restschuld prognostiziert.');
+let loanValid=hasLoan;
+for(let y=first;y<=last;y++){
+ let possible=null,paid=0,annualSpecial=costs(y),balanceAtYearEnd=null;
+ for(let m=1;m<=12;m++){
+  const key=ym(y,m);if(key<start)continue;
+  if(m===1)reserve-=annualSpecial; // 1. Januar, vor allen weiteren Bewegungen.
+  // Monatscashflow enthält die reguläre Darlehensrate bereits einmal.
+  reserve+=cashFlow(key,!!payoff);
+  if(loanValid&&balance>0){
+   let rate=Number(config.mortgageRate);
+   if(config.fixedRateEnd&&key>config.fixedRateEnd){if(config.followUpRate===null){loanValid=false;warnings.push('Ohne Anschlusszins endet die Restschuldprognose nach der Zinsbindung.')}else rate=Number(config.followUpRate)}
+   if(loanValid){
+    const interest=balance*rate/1200,regular=nonneg(config.mortgagePayment);
+    balance=Math.max(0,balance+interest-regular);
+    if(balance===0&&!payoff)payoff=key;
+   }
+  }
+  if(m===7){
+   // Monatsüberschuss bis einschließlich Juli ist eingegangen.
+   // Die Sondertilgung folgt am 31. Juli.
+   possible=loanValid?Math.max(0,Math.min(annualLimit(),balance,reserve-nonneg(config.minimumReserve))):null;
+   const requested=config.repaymentPolicy==='none'?0:config.repaymentPolicy==='manual'?nonneg(config.annualRepayments[y]):(possible||0);
+   if(loanValid&&balance>0){paid=Math.max(0,Math.min(requested,possible||0));balance-=paid;reserve-=paid;if(balance<=0.005&&!payoff){balance=0;payoff=key}}
+  }
+ }
+ balanceAtYearEnd=loanValid?balance:null;
+ rows.push({year:y,special:annualSpecial,reserve,possible,paid,balance:balanceAtYearEnd});
+ if(y>=2038&&payoff&&y>Number(payoff.slice(0,4)))break;
+ }
+ return {rows,payoff,warnings,hasLoan,loanValid}}
+function drawManual(){manual.replaceChildren();if(config.repaymentPolicy!=='manual')return;manual.append(mk('h3','', 'Geplante Sondertilgungen je Jahr'));const g=mk('div','fk33-grid');for(let y=2027;y<=2044;y++){const w=mk('div','fk33-field'),l=mk('label','',String(y)),i=document.createElement('input');i.type='number';i.min='0';i.step='any';i.value=config.annualRepayments[y]??'';i.onchange=()=>{if(i.value==='')delete config.annualRepayments[y];else config.annualRepayments[y]=nonneg(i.value);save();update()};w.append(l,i);g.append(w)}manual.append(g)}
+function drawSpark(){sb.replaceChildren();const key=$('month')?.value||'2027-01';let total=0;for(const g of groups)for(const item of g.items){if(accountFor(item[0])!=='second'||schedule(item).frequency!=='m')continue;const v=nonneg(amount(item,key));if(!v)continue;total+=v;const r=mk('div','fk33-row');r.append(mk('span','',item[1]),mk('strong','',fmt(v)));sb.append(r)}for(const [label,value] of [['Monatlicher Sparkassenbedarf',total],['Aktuelle interne Umbuchung',Number(state.transfer?.amount)||0],['Differenz Umbuchung minus Bedarf',(Number(state.transfer?.amount)||0)-total]]){const r=mk('div','fk33-row');r.append(mk('span','',label),mk('strong','',fmt(value)));sb.append(r)}}
+function update(){drawSpark();drawManual();const result=calculate();hv.textContent=!result.hasLoan?'Darlehensdaten fehlen':result.payoff?new Date(Number(result.payoff.slice(0,4)),Number(result.payoff.slice(5,7))-1,1).toLocaleDateString('de-DE',{month:'long',year:'numeric'}):'Kein gesicherter Ablösetermin';hd.textContent='Modell: Sonderausgaben 1. Januar · Sondertilgung 31. Juli';status.replaceChildren();if(result.warnings.length)status.append(mk('p','fk33-alert',result.warnings.join(' ')));status.append(mk('p','fk33-note','Langfristige Zahlen setzen voraus, dass die importierten Einnahmen, Ausgaben und Kreditlaufzeiten weiterhin zutreffen. Keine Zahlungsfreigabe.'));const t=mk('table','fk33-table'),head=mk('tr');for(const h of ['Jahr','Sonderausgaben','Rücklagen Jahresende','Rechnerisch mögliche Sondertilgung','Geplante Sondertilgung','Restschuld Eigenheim'])head.append(mk('th','',h));t.append(head);for(const r of result.rows){const tr=mk('tr');for(const v of [r.year,fmt(r.special),config.openingReserve===null?'–':fmt(r.reserve),r.possible===null?'–':fmt(r.possible),fmt(r.paid),r.balance===null?'–':fmt(r.balance)])tr.append(mk('td','',String(v)));t.append(tr)}scroll.replaceChildren(t)}
+// Updates nach Änderungen in den bestehenden Tabs / Formularen.
+for(const id of ['month','bonus','bonusOn','eqaSold','transferAmount','transferStart','accountRows','groups']){const e=$(id);if(e)e.addEventListener('change',()=>{if(id==='bonusOn')bonus.checked=!!state.bonusOn;if(id==='eqaSold')car.checked=!!state.eqaSold;queueMicrotask(update)})}
+const nav=$('tabAnnual');if(nav)nav.addEventListener('click',()=>queueMicrotask(update));
+// Version 3.2-Daten bleiben im bisherigen state.fk32 erhalten.
+// Keine privaten Beträge oder Positionen im öffentlichen HTML hinterlegt.
+drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.textContent='Private Haushaltsplanung · iPhone-PWA 3.3';
+})();
+</script>
+<!-- Ende Finanzkompass 3.3 -->
+</body></html>

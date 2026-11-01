@@ -188,7 +188,7 @@ const DAY_QUALITY={
  legal:'22.12.',liability:'zuletzt 04.05.',building:'zuletzt 12.12.',
  adac:'01.04.',prime:'10.05.',donation:'07.01. und 07.07.',paypalD:'letzte Rate 05.01.'
 };
-const MONTH_END_IDS=new Set(['mortgage','rentloan','kfw']);
+const MONTH_END_IDS=new Set(['mortgage','rentloan','kfw']); // Kredite am Monatsende: bei Nicht-Bankarbeitstag vorziehen
 // Bankarbeitstage: Wochenenden, bundesweite Feiertage und Berliner Feiertage.
 // Heiligabend und Silvester gelten für Banküberweisungen als Nicht-Bankarbeitstage.
 function easterSunday(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),day=(h+l-7*m+114)%31+1;return new Date(y,mo-1,day)}
@@ -200,10 +200,11 @@ function lastBusinessDay(month,offset=0){const [y,m]=month.split('-').map(Number
 // Version 4.0: Geplante Buchungen an Wochenenden/Bankfeiertagen auf den nächsten Bankarbeitstag verschieben.
 // Tagesbudgets sind keine echten Bankbuchungen und bleiben taggenau verteilt.
 function nextBankDate(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||''))return iso;const [y,m,d]=iso.split('-').map(Number),date=new Date(y,m-1,d);while(!isBankDay(date))date.setDate(date.getDate()+1);return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0')}
-function plannedDate(id,month,d){if(id==='salaryJ')return salaryBankDate(month,2);if(id==='salaryO')return salaryBankDate(month,0);return nextBankDate(dayInMonth(month,dayForItem(id,d)))}
+function previousBankDate(iso){if(!/^\d{4}-\d{2}-\d{2}$/.test(iso||''))return iso;const [y,m,d]=iso.split('-').map(Number),date=new Date(y,m-1,d);while(!isBankDay(date))date.setDate(date.getDate()-1);return date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0')+'-'+String(date.getDate()).padStart(2,'0')}
+function plannedDate(id,month,d){if(id==='salaryJ')return salaryBankDate(month,2);if(id==='salaryO')return salaryBankDate(month,0);const due=dayForItem(id,d),nominal=dayInMonth(month,due);const rule=(state.bankRules||{})[id]||(MONTH_END_IDS.has(id)?'previous':'next');return rule==='previous'?previousBankDate(nominal):rule==='same-month'?(nextBankDate(nominal).slice(0,7)===month?nextBankDate(nominal):previousBankDate(nominal)):nextBankDate(nominal)}
 
 function dayForItem(id,d){return (state.dueDays&&state.dueDays[id]) || KNOWN_DAYS[id] || (id==='salary'?d.salaryDay:id==='rent'?d.rentDay:id==='child'?d.childDay:d.defaultDay)}
-function renderDueRows(){const root=$('dueRows');root.replaceChildren();for(const g of groups){const heading=document.createElement('h4');heading.textContent=g.name;root.append(heading);for(const item of g.items){if(variableIds.has(item[0])||item[0]==='salaryJ'||item[0]==='salaryO')continue;const row=document.createElement('div');row.className='due-row';const label=document.createElement('label');label.textContent=item[1];const input=document.createElement('input');input.type='number';input.min='1';input.max='31';input.value=state.dueDays?.[item[0]]??KNOWN_DAYS[item[0]]??(item[0]==='salary'?28:item[0]==='rent'?3:item[0]==='child'?15:'');input.placeholder='Tag 1–31';input.title='Tag des Monats';const hint=document.createElement('small');hint.textContent=state.dueDays?.[item[0]]?'Manuell':(DAY_QUALITY[item[0]]|| (KNOWN_DAYS[item[0]]?'Archiv':'Unbekannt · vorläufig'));hint.title=hint.textContent;row.append(label,input,hint);root.append(row);input.addEventListener('change',()=>{const n=Number(input.value);state.dueDays ||= {};if(input.value==='')delete state.dueDays[item[0]];else if(Number.isInteger(n)&&n>=1&&n<=31)state.dueDays[item[0]]=n;else{alert('Bitte einen Tag zwischen 1 und 31 eingeben.');return}save();safeRenderLiquidity()})}}}
+function renderDueRows(){const root=$('dueRows');root.replaceChildren();for(const g of groups){const heading=document.createElement('h4');heading.textContent=g.name;root.append(heading);for(const item of g.items){if(variableIds.has(item[0])||item[0]==='salaryJ'||item[0]==='salaryO')continue;const row=document.createElement('div');row.className='due-row';const label=document.createElement('label');label.textContent=item[1];const input=document.createElement('input');input.type='number';input.min='1';input.max='31';input.value=state.dueDays?.[item[0]]??KNOWN_DAYS[item[0]]??(item[0]==='salary'?28:item[0]==='rent'?3:item[0]==='child'?15:'');input.placeholder='Tag 1–31';input.title='Tag des Monats';const hint=document.createElement('small');hint.textContent=state.dueDays?.[item[0]]?'Manuell':(DAY_QUALITY[item[0]]|| (KNOWN_DAYS[item[0]]?'Archiv':'Unbekannt · vorläufig'));hint.title=hint.textContent;const rule=document.createElement('select');rule.title='Bankbuchungsregel';for(const [v,t] of [['next','Nächster Banktag'],['previous','Vorheriger Banktag'],['same-month','Monat nicht überschreiten']]){const o=document.createElement('option');o.value=v;o.textContent=t;rule.append(o)}rule.value=(state.bankRules||{})[item[0]]||(MONTH_END_IDS.has(item[0])?'previous':'next');rule.onchange=()=>{state.bankRules ||= {};state.bankRules[item[0]]=rule.value;save();safeRenderLiquidity()};row.append(label,input,hint,rule);root.append(row);input.addEventListener('change',()=>{const n=Number(input.value);state.dueDays ||= {};if(input.value==='')delete state.dueDays[item[0]];else if(Number.isInteger(n)&&n>=1&&n<=31)state.dueDays[item[0]]=n;else{alert('Bitte einen Tag zwischen 1 und 31 eingeben.');return}save();safeRenderLiquidity()})}}}
 
 function loadLiquidity(){const data={...LDEFAULT,...(state.liquidity||{})};for(const id of LFIELDS)$(id==='anchor'?'liqAnchor':id==='target'?'liqTarget':id==='salary'?'liqSalary':id==='second'?'liqSecond':id).value=data[id]??''}
 function getLiquidity(){const data={};for(const id of LFIELDS)data[id]=$(id==='anchor'?'liqAnchor':id==='target'?'liqTarget':id==='salary'?'liqSalary':id==='second'?'liqSecond':id).value;return data}
@@ -385,7 +386,7 @@ window.fk37MonthlySource={totals,special:fk35SpecialTotal,hasData:()=>groups.len
    data[key]={gls,spark,total:gls+spark,bookedResult:movements[key]||0,exact:true};
   }
   notes.push('Ab dem eingetragenen Kontostichtag werden ausschließlich spätere Buchungen angesetzt; bereits erfolgte Darlehensabbuchungen werden nicht erneut berechnet.');
-  notes.push('Die Buchungssumme je Monat entspricht exakt der Veränderung der beiden Kontostände (ohne interne Umbuchungen). Sie kann vom Planergebnis abweichen, wenn Buchungen in andere Monate verschoben werden oder Zahlungsdaten fehlen. Variable Budgets werden über die Monatstage verteilt.');
+  notes.push('Die Buchungssumme je Monat entspricht der Veränderung des gemeinsamen Kontostands (interne Umbuchungen sind neutral). Sie kann vom Planergebnis abweichen, wenn Buchungen in andere Monate verschoben werden oder Zahlungsdaten fehlen. Variable Budgets werden über die Monatstage verteilt.');
   notes.push(...notices);
   return {data,notes,anchor,openingTotal:nvalue(d.salary)+nvalue(d.second)};
  }
@@ -596,7 +597,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
 })();
 </script>
 <!-- Ende Finanzkompass 3.6 -->
-<!-- Finanzkompass 4.1: Monatsprognose mit Dispo November 2026 bis Dezember 2028 -->
+<!-- Finanzkompass 4.2: Monatsprognose mit Dispo November 2026 bis Dezember 2028 -->
 <style>
 #fk37MonthlyView .fk37-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 #fk37MonthlyView table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px}
@@ -616,7 +617,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
  const nav=document.querySelector('.tabs');if(!nav||!window.fk37MonthlySource)return;
  const button=document.createElement('button');button.type='button';button.id='tabMonthlyForecast';button.textContent='📅 Monatsprognose';nav.append(button);
  const view=document.createElement('section');view.id='fk37MonthlyView';view.className='hidden';
- view.innerHTML='<div class="panel"><h2>📅 Monatsprognose · November 2026 bis Dezember 2028</h2><p class="fk37-note">Alle Werte pro Monat. Die letzten drei Spalten zeigen die prognostizierten Kontostände einschließlich Dispo. „Planergebnis“ ist die rechnerische Monatsplanung; „Tatsächliche Buchungen“ ist die Summe der auf den jeweiligen Kalendermonat terminierten Kontobewegungen und erklärt die Veränderung des Gesamtsaldos. Reguläre Ausgaben enthalten keine Sonderausgaben. Die Spalte „Weitere Effekte“ zeigt zusätzliche Szenariozahlungen aus der Jahresplanung, soweit vorhanden. Negative Ergebnisse sind Fehlbeträge.</p><div class="fk37-scroll" id="fk37MonthlyTable"></div><p class="fk37-note" id="fk37MonthlyNotice"></p></div>';
+ view.innerHTML='<div class="panel"><h2>📅 Monatsprognose · November 2026 bis Dezember 2028</h2><p class="fk37-note">Alle Werte pro Monat. Die letzten drei Spalten zeigen die prognostizierten Kontostände einschließlich Dispo. Monatsend-Kreditraten werden am vorherigen Bankarbeitstag gebucht; die Regel ist bei den Buchungstagen pro Position anpassbar. „Planergebnis“ ist die rechnerische Monatsplanung; „Tatsächliche Buchungen“ ist die Summe der auf den jeweiligen Kalendermonat terminierten Kontobewegungen und erklärt die Veränderung des Gesamtsaldos. Reguläre Ausgaben enthalten keine Sonderausgaben. Die Spalte „Weitere Effekte“ zeigt zusätzliche Szenariozahlungen aus der Jahresplanung, soweit vorhanden. Negative Ergebnisse sind Fehlbeträge.</p><div class="fk37-scroll" id="fk37MonthlyTable"></div><p class="fk37-note" id="fk37MonthlyNotice"></p></div>';
  document.querySelector('main')?.append(view);
  const fmt=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Math.abs(n)<0.005?0:n);
  const mlabel=k=>new Date(Number(k.slice(0,4)),Number(k.slice(5,7))-1,1).toLocaleDateString('de-DE',{month:'short',year:'numeric'});
@@ -654,7 +655,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
  const tabs=['tabPlan','tabLiquidity','tabAnnual'];
  for(const id of tabs){const el=document.getElementById(id);if(!el)continue;const prior=el.onclick;el.onclick=function(e){view.classList.add('hidden');button.classList.remove('active');if(prior)prior.call(this,e)};}
  button.onclick=()=>{for(const id of tabs){document.getElementById(id)?.classList.remove('active')}for(const id of ['planView','liquidityView','annualView'])document.getElementById(id)?.classList.add('hidden');button.classList.add('active');view.classList.remove('hidden');render();window.scrollTo({top:0,behavior:'instant'})};
- const oldTitle=document.querySelector('header p');if(oldTitle)oldTitle.textContent='Private Haushaltsplanung · iPhone-PWA 4.1';
+ const oldTitle=document.querySelector('header p');if(oldTitle)oldTitle.textContent='Private Haushaltsplanung · iPhone-PWA 4.2';
 })();
 </script>
 <!-- Ende Finanzkompass 3.7 -->

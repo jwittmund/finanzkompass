@@ -374,18 +374,18 @@ window.fk37MonthlySource={totals,special:fk35SpecialTotal,hasData:()=>groups.len
 
   events.sort((a,b)=>a.date.localeCompare(b.date));
   let gls=nvalue(d.salary),spark=nvalue(d.second),idx=0;
-  const data={},notes=[];
+  const data={},notes=[],movements={};
   const startMonth=anchor.slice(0,7);
   if(startMonth>'2026-11')notes.push('Monate vor dem Kontostichtag sind nicht rückwirkend berechenbar.');
   for(let y=2026;y<=2028;y++)for(let m=y===2026?11:1;m<=12;m++){
    const key=y+'-'+String(m).padStart(2,'0');
    if(key<startMonth){data[key]=null;continue;}
    const monthEnd=key+'-'+String(new Date(y,m,0).getDate()).padStart(2,'0');
-   while(idx<events.length&&events[idx].date<=monthEnd){const e=events[idx++];if(e.account==='second')spark+=e.value;else gls+=e.value;}
-   data[key]={gls,spark,total:gls+spark,exact:true};
+   while(idx<events.length&&events[idx].date<=monthEnd){const e=events[idx++];if(e.account==='second')spark+=e.value;else gls+=e.value;if(!e.transfer){const bookedMonth=e.date.slice(0,7);movements[bookedMonth]=(movements[bookedMonth]||0)+e.value;}}
+   data[key]={gls,spark,total:gls+spark,bookedResult:movements[key]||0,exact:true};
   }
   notes.push('Ab dem eingetragenen Kontostichtag werden ausschließlich spätere Buchungen angesetzt; bereits erfolgte Darlehensabbuchungen werden nicht erneut berechnet.');
-  notes.push('Die Zahlungstage entsprechen der taggenauen Liquiditätsprognose. Variable Budgets werden über die Monatstage verteilt.');
+  notes.push('Die Buchungssumme je Monat entspricht exakt der Veränderung der beiden Kontostände (ohne interne Umbuchungen). Sie kann vom Planergebnis abweichen, wenn Buchungen in andere Monate verschoben werden oder Zahlungsdaten fehlen. Variable Budgets werden über die Monatstage verteilt.');
   notes.push(...notices);
   return {data,notes,anchor,openingTotal:nvalue(d.salary)+nvalue(d.second)};
  }
@@ -596,7 +596,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
 })();
 </script>
 <!-- Ende Finanzkompass 3.6 -->
-<!-- Finanzkompass 4.0: Monatsprognose mit Dispo November 2026 bis Dezember 2028 -->
+<!-- Finanzkompass 4.1: Monatsprognose mit Dispo November 2026 bis Dezember 2028 -->
 <style>
 #fk37MonthlyView .fk37-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 #fk37MonthlyView table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px}
@@ -616,7 +616,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
  const nav=document.querySelector('.tabs');if(!nav||!window.fk37MonthlySource)return;
  const button=document.createElement('button');button.type='button';button.id='tabMonthlyForecast';button.textContent='📅 Monatsprognose';nav.append(button);
  const view=document.createElement('section');view.id='fk37MonthlyView';view.className='hidden';
- view.innerHTML='<div class="panel"><h2>📅 Monatsprognose · November 2026 bis Dezember 2028</h2><p class="fk37-note">Alle Werte pro Monat. Die letzten drei Spalten zeigen die prognostizierten Kontostände einschließlich Dispo. Reguläre Ausgaben enthalten keine Sonderausgaben. Die Spalte „Weitere Effekte“ zeigt zusätzliche Szenariozahlungen aus der Jahresplanung, soweit vorhanden. Negative Ergebnisse sind Fehlbeträge.</p><div class="fk37-scroll" id="fk37MonthlyTable"></div><p class="fk37-note" id="fk37MonthlyNotice"></p></div>';
+ view.innerHTML='<div class="panel"><h2>📅 Monatsprognose · November 2026 bis Dezember 2028</h2><p class="fk37-note">Alle Werte pro Monat. Die letzten drei Spalten zeigen die prognostizierten Kontostände einschließlich Dispo. „Planergebnis“ ist die rechnerische Monatsplanung; „Tatsächliche Buchungen“ ist die Summe der auf den jeweiligen Kalendermonat terminierten Kontobewegungen und erklärt die Veränderung des Gesamtsaldos. Reguläre Ausgaben enthalten keine Sonderausgaben. Die Spalte „Weitere Effekte“ zeigt zusätzliche Szenariozahlungen aus der Jahresplanung, soweit vorhanden. Negative Ergebnisse sind Fehlbeträge.</p><div class="fk37-scroll" id="fk37MonthlyTable"></div><p class="fk37-note" id="fk37MonthlyNotice"></p></div>';
  document.querySelector('main')?.append(view);
  const fmt=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Math.abs(n)<0.005?0:n);
  const mlabel=k=>new Date(Number(k.slice(0,4)),Number(k.slice(5,7))-1,1).toLocaleDateString('de-DE',{month:'short',year:'numeric'});
@@ -625,7 +625,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
   const host=document.getElementById('fk37MonthlyTable');host.replaceChildren();
   const source=window.fk37MonthlySource;
   const table=document.createElement('table'),head=document.createElement('tr');
-  for(const name of ['Monat','Einnahmen','Reguläre Ausgaben','Überschuss vor Sonderausgaben','Sonderausgaben','Weitere Effekte','Monatsergebnis','GLS Monatsende','Sparkasse Monatsende','Gesamtsaldo Monatsende']){const th=document.createElement('th');th.textContent=name;head.append(th)}
+  for(const name of ['Monat','Einnahmen','Reguläre Ausgaben','Überschuss vor Sonderausgaben','Sonderausgaben','Weitere Effekte','Planergebnis','Tatsächliche Buchungen','GLS Monatsende','Sparkasse Monatsende','Gesamtsaldo Monatsende']){const th=document.createElement('th');th.textContent=name;head.append(th)}
   const thead=document.createElement('thead');thead.append(head);table.append(thead);
   const tbody=document.createElement('tbody');
   const sums={};const projection=source.accountProjection();let firstCleared=null,previousNegative=projection.openingTotal<0;
@@ -636,16 +636,17 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
    const annual=typeof window.fk37AnnualFlow==='function'?window.fk37AnnualFlow(key):t.balance;
    const extra=annual-t.balance;
    const result=before-special+extra;
-   const values=[t.income,regularExpense,before,special,extra,result];
-   const tr=document.createElement('tr');cell(tr,mlabel(key));values.forEach((v,i)=>cell(tr,v,i===5));
    const balances=projection.data?.[key]||null;
+   const booked=balances?balances.bookedResult:null;
+   const values=[t.income,regularExpense,before,special,extra,result,booked];
+   const tr=document.createElement('tr');cell(tr,mlabel(key));values.forEach((v,i)=>cell(tr,v===null?'–':v,i===6));
    if(balances){cell(tr,balances.gls,true);cell(tr,balances.spark,true);cell(tr,balances.total,true);
     if(previousNegative===true&&balances.total>=0&&!firstCleared){firstCleared=key;tr.style.background='#e9f8ee';tr.title='Gesamtdispo erstmals ausgeglichen';}
     previousNegative=balances.total<0;
    }else{cell(tr,'–');cell(tr,'–');cell(tr,'–');}
    tbody.append(tr);
-   (sums[year] ||= [0,0,0,0,0,0]).forEach((_,i)=>sums[year][i]+=values[i]);
-   if(month===12){const subtotal=document.createElement('tr');subtotal.className='fk37-year';cell(subtotal,year===2026?'Summe Nov–Dez 2026':'Summe '+year);sums[year].forEach((v,i)=>cell(subtotal,v,i===5));const end=projection.data?.[key];for(const v of end?[end.gls,end.spark,end.total]:['–','–','–'])cell(subtotal,v,typeof v==='number');tbody.append(subtotal)}
+   (sums[year] ||= [0,0,0,0,0,0,0]).forEach((_,i)=>sums[year][i]+=(values[i]||0));
+   if(month===12){const subtotal=document.createElement('tr');subtotal.className='fk37-year';cell(subtotal,year===2026?'Summe Nov–Dez 2026':'Summe '+year);sums[year].forEach((v,i)=>cell(subtotal,v,i===6));const end=projection.data?.[key];for(const v of end?[end.gls,end.spark,end.total]:['–','–','–'])cell(subtotal,v,typeof v==='number');tbody.append(subtotal)}
   }
   table.append(tbody);host.append(table);
   document.getElementById('fk37MonthlyNotice').textContent=!source.hasData()?'Noch keine privaten Finanzpositionen importiert.':projection.error||('Die Kontostände werden ab dem gespeicherten Stichtag fortgeschrieben; interne Umbuchungen verändern nur die Kontoverteilung. '+(firstCleared?'Der gemeinsame Kontosaldo wird voraussichtlich im '+mlabel(firstCleared)+' erstmals nichtnegativ. ':'Ein sicherer Zeitpunkt für den Dispoausgleich ist derzeit nicht ermittelt. ')+(projection.notes||[]).join(' '));
@@ -653,7 +654,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
  const tabs=['tabPlan','tabLiquidity','tabAnnual'];
  for(const id of tabs){const el=document.getElementById(id);if(!el)continue;const prior=el.onclick;el.onclick=function(e){view.classList.add('hidden');button.classList.remove('active');if(prior)prior.call(this,e)};}
  button.onclick=()=>{for(const id of tabs){document.getElementById(id)?.classList.remove('active')}for(const id of ['planView','liquidityView','annualView'])document.getElementById(id)?.classList.add('hidden');button.classList.add('active');view.classList.remove('hidden');render();window.scrollTo({top:0,behavior:'instant'})};
- const oldTitle=document.querySelector('header p');if(oldTitle)oldTitle.textContent='Private Haushaltsplanung · iPhone-PWA 3.9';
+ const oldTitle=document.querySelector('header p');if(oldTitle)oldTitle.textContent='Private Haushaltsplanung · iPhone-PWA 4.1';
 })();
 </script>
 <!-- Ende Finanzkompass 3.7 -->

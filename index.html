@@ -330,6 +330,7 @@ function renderAnnual(){const y=Number($('annualYear').value),n=annualNumbers(y)
 annualExtraRender();
 $('tabAnnual').onclick=()=>{$('planView').classList.add('hidden');$('liquidityView').classList.add('hidden');$('annualView').classList.remove('hidden');for(const id of ['tabPlan','tabLiquidity'])$(id).classList.remove('active');$('tabAnnual').classList.add('active');renderAnnual()};
 for(const [tab,view] of [['tabPlan','planView'],['tabLiquidity','liquidityView']]){const old=$(tab).onclick;$(tab).onclick=()=>{old();$('annualView').classList.add('hidden');$('tabAnnual').classList.remove('active')}}
+window.fk37MonthlySource={totals,special:fk35SpecialTotal,hasData:()=>groups.length>0};
 </script><script>/* Version 3.1: reine Neuordnung der Oberfläche; Berechnung und Datenspeicher unverändert. */
 (()=>{
  const $=id=>document.getElementById(id);
@@ -531,8 +532,64 @@ for(const id of ['month','bonus','bonusOn','eqaSold','transferAmount','transferS
 const nav=$('tabAnnual');if(nav)nav.addEventListener('click',()=>queueMicrotask(update));
 // Bestehende 3.2/3.3-Daten bleiben im bisherigen state.fk32 erhalten.
 // Keine privaten Beträge oder Positionen im öffentlichen HTML hinterlegt.
+window.fk37AnnualFlow=(key)=>cashFlow(key,false);
 drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.textContent='Private Haushaltsplanung · iPhone-PWA 3.6';
 })();
 </script>
 <!-- Ende Finanzkompass 3.6 -->
+<!-- Finanzkompass 3.7: Monatsprognose November 2026 bis Dezember 2028 -->
+<style>
+#fk37MonthlyView .fk37-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#fk37MonthlyView table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px}
+#fk37MonthlyView th,#fk37MonthlyView td{padding:11px 10px;text-align:right;border-bottom:1px solid #e2e8f0}
+#fk37MonthlyView th:first-child,#fk37MonthlyView td:first-child{text-align:left;position:sticky;left:0;background:#fff;z-index:1}
+#fk37MonthlyView th{background:#f1f5f9;position:sticky;top:0}
+#fk37MonthlyView th:first-child{z-index:2;background:#f1f5f9}
+#fk37MonthlyView tr.fk37-year td{background:#edf3fa;font-weight:700}
+#fk37MonthlyView tr.fk37-year td:first-child{background:#edf3fa}
+#fk37MonthlyView .fk37-negative{color:#b42332;font-weight:700}
+#fk37MonthlyView .fk37-positive{color:#147d53;font-weight:700}
+#fk37MonthlyView .fk37-note{font-size:13px;color:#526176;line-height:1.5}
+@media(max-width:600px){#fk37MonthlyView th,#fk37MonthlyView td{padding:10px 8px;font-size:12px}.tabs{flex-wrap:wrap}#fk37MonthlyView .fk37-scroll{margin:0 -8px}}
+</style>
+<script>
+(()=>{'use strict';
+ const nav=document.querySelector('.tabs');if(!nav||!window.fk37MonthlySource)return;
+ const button=document.createElement('button');button.type='button';button.id='tabMonthlyForecast';button.textContent='📅 Monatsprognose';nav.append(button);
+ const view=document.createElement('section');view.id='fk37MonthlyView';view.className='hidden';
+ view.innerHTML='<div class="panel"><h2>📅 Monatsprognose · November 2026 bis Dezember 2028</h2><p class="fk37-note">Alle Werte pro Monat. Reguläre Ausgaben enthalten keine Sonderausgaben. Die Spalte „Weitere Effekte“ zeigt zusätzliche Szenariozahlungen aus der Jahresplanung, soweit vorhanden. Negative Ergebnisse sind Fehlbeträge.</p><div class="fk37-scroll" id="fk37MonthlyTable"></div><p class="fk37-note" id="fk37MonthlyNotice"></p></div>';
+ document.querySelector('main')?.append(view);
+ const fmt=n=>new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}).format(Math.abs(n)<0.005?0:n);
+ const mlabel=k=>new Date(Number(k.slice(0,4)),Number(k.slice(5,7))-1,1).toLocaleDateString('de-DE',{month:'short',year:'numeric'});
+ const cell=(tr,v,highlight=false)=>{const td=document.createElement('td');td.textContent=typeof v==='number'?fmt(v):v;if(highlight&&typeof v==='number')td.className=v<0?'fk37-negative':'fk37-positive';tr.append(td)};
+ function render(){
+  const host=document.getElementById('fk37MonthlyTable');host.replaceChildren();
+  const source=window.fk37MonthlySource;
+  const table=document.createElement('table'),head=document.createElement('tr');
+  for(const name of ['Monat','Einnahmen','Reguläre Ausgaben','Überschuss vor Sonderausgaben','Sonderausgaben','Weitere Effekte','Monatsergebnis']){const th=document.createElement('th');th.textContent=name;head.append(th)}
+  const thead=document.createElement('thead');thead.append(head);table.append(thead);
+  const tbody=document.createElement('tbody');
+  const sums={};
+  for(let year=2026;year<=2028;year++)for(let month=(year===2026?11:1);month<=12;month++){
+   const key=year+'-'+String(month).padStart(2,'0');
+   const t=source.totals(key),special=source.special(key),regularExpense=t.expense-special;
+   const before=t.income-regularExpense;
+   const annual=typeof window.fk37AnnualFlow==='function'?window.fk37AnnualFlow(key):t.balance;
+   const extra=annual-t.balance;
+   const result=before-special+extra;
+   const values=[t.income,regularExpense,before,special,extra,result];
+   const tr=document.createElement('tr');cell(tr,mlabel(key));values.forEach((v,i)=>cell(tr,v,i===5));tbody.append(tr);
+   (sums[year] ||= [0,0,0,0,0,0]).forEach((_,i)=>sums[year][i]+=values[i]);
+   if(month===12){const subtotal=document.createElement('tr');subtotal.className='fk37-year';cell(subtotal,year===2026?'Summe Nov–Dez 2026':'Summe '+year);sums[year].forEach((v,i)=>cell(subtotal,v,i===5));tbody.append(subtotal)}
+  }
+  table.append(tbody);host.append(table);
+  document.getElementById('fk37MonthlyNotice').textContent=source.hasData()?'Die Monatswerte werden aus den aktuell gespeicherten Grunddaten berechnet. Interne Umbuchungen zwischen GLS und Sparkasse sind keine Ausgaben. Die Ergebnisse sind Monatsbewegungen, keine Kontostände oder Rücklagen.':'Noch keine privaten Finanzpositionen importiert; die Monatsprognose ist derzeit nicht aussagekräftig.';
+ }
+ const tabs=['tabPlan','tabLiquidity','tabAnnual'];
+ for(const id of tabs){const el=document.getElementById(id);if(!el)continue;const prior=el.onclick;el.onclick=function(e){view.classList.add('hidden');button.classList.remove('active');if(prior)prior.call(this,e)};}
+ button.onclick=()=>{for(const id of tabs){document.getElementById(id)?.classList.remove('active')}for(const id of ['planView','liquidityView','annualView'])document.getElementById(id)?.classList.add('hidden');button.classList.add('active');view.classList.remove('hidden');render();window.scrollTo({top:0,behavior:'instant'})};
+ const oldTitle=document.querySelector('header p');if(oldTitle)oldTitle.textContent='Private Haushaltsplanung · iPhone-PWA 3.7';
+})();
+</script>
+<!-- Ende Finanzkompass 3.7 -->
 </body></html>

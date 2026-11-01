@@ -333,41 +333,60 @@ for(const [tab,view] of [['tabPlan','planView'],['tabLiquidity','liquidityView']
 window.fk37MonthlySource={totals,special:fk35SpecialTotal,hasData:()=>groups.length>0,
  accountProjection(){
   const d={...LDEFAULT,...(state.liquidity||{})};
-  const valid=[d.salary,d.second].every(v=>String(v).trim()!==''&&Number.isFinite(parseMoney(v)));
-  const anchor=d.anchor||'';
-  if(!valid||!/^\d{4}-\d{2}-\d{2}$/.test(anchor))return {error:'Bitte in der Liquiditätsprognose den Stichtag sowie beide Kontostände (GLS und Sparkasse) eintragen.'};
-  const anchorMonth=anchor.slice(0,7),lastDay=new Date(Number(anchor.slice(0,4)),Number(anchor.slice(5,7)),0).getDate();
-  const isMonthEnd=Number(anchor.slice(8))===lastDay;
-  let gls=nvalue(d.salary),spark=nvalue(d.second);
-  const data={};const notes=[];
-  if(!isMonthEnd)notes.push('Der Kontostichtag '+anchor+' liegt innerhalb eines Monats. Für diesen Monat ist ohne taggenaue Restbuchungen kein verlässlicher Monatsendstand berechenbar. Die folgenden Monatswerte sind daher nur eine Näherung, solange kein Monatsendstand hinterlegt ist.');
-  if(anchorMonth>'2026-11')notes.push('Monate vor dem Kontostichtag lassen sich aus dem aktuellen Kontostand nicht rückwärts zuverlässig rekonstruieren.');
-  if(nvalue(d.card1Open)>0||nvalue(d.card2Open)>0)notes.push('Kreditkarten: Nur eingetragene Abbuchungen mit Fälligkeitsdatum sind berücksichtigt. Künftige Kreditkartenabrechnungen ohne Termin können die Kontostände verändern.');
-  const advance=(key)=>{
-   for(const g of groups)for(const item of g.items){const v=signed(g,item,key);const a=accountFor(item[0]);if(a==='card')continue;if(a==='second')spark+=v;else gls+=v;}
-   for(const sp of fk35SpecialForMonth(key)){if(sp.account==='second')spark-=sp.amount;else gls-=sp.amount;}
-   for(const c of state.customCosts||[])if(c.month===key)gls-=Math.max(0,Number(c.amount)||0);
-   if(state.bonusOn&&key==='2027-05')gls+=Number(state.bonus)||0;
-   // Gleiche Szenarioeffekte wie die Jahresplanung, dem GLS-Konto zugeordnet.
-   const base=totals(key).balance;
-   const annual=typeof window.fk37AnnualFlow==='function'?window.fk37AnnualFlow(key):base;
-   gls+=annual-base;
-   if(key>=String(state.transfer?.start||'9999-12')){const amount=Number(state.transfer?.amount)||0;gls-=amount;spark+=amount;}
-   for(let i=1;i<=2;i++){
-    const open=nvalue(d['card'+i+'Open']),bill=nvalue(d['card'+i+'Bill']);
-    const rest=Math.max(0,open-bill);
-    if(d['card'+i+'Date']?.slice(0,7)===key&&d['card'+i+'Date']>anchor)gls-=bill;
-    if(d['card'+i+'RestDate']?.slice(0,7)===key&&d['card'+i+'RestDate']>anchor)gls-=rest;
-   }
-  };
-  for(let y=2026;y<=2028;y++)for(let m=(y===2026?11:1);m<=12;m++){
-   const key=y+'-'+String(m).padStart(2,'0');
-   if(key<anchorMonth){data[key]=null;continue;}
-   if(key===anchorMonth){data[key]=isMonthEnd?{gls,spark,total:gls+spark,exact:true}:null;continue;}
-   advance(key);data[key]={gls,spark,total:gls+spark,exact:isMonthEnd};
+  const anchor=d.anchor||'', valid=/^\d{4}-\d{2}-\d{2}$/.test(anchor)&&[d.salary,d.second].every(v=>String(v).trim()!==''&&Number.isFinite(parseMoney(v)));
+  if(!valid)return {error:'Bitte den aktuellen Stichtag und beide Kontostände unter Grunddaten → Liquidität eintragen.'};
+  const target='2028-12-31',events=[],notices=[];
+ for(let m=new Date(Number(anchor.slice(0,4)),Number(anchor.slice(5,7))-1,1);m<=new Date(Number(target.slice(0,4)),Number(target.slice(5,7))-1,1);m.setMonth(m.getMonth()+1)){
+  const month=m.getFullYear()+'-'+String(m.getMonth()+1).padStart(2,'0');if(month<'2026-10')continue;
+  const dim=new Date(m.getFullYear(),m.getMonth()+1,0).getDate();
+  for(const g of groups)for(const item of g.items){let amt;
+   if(month==='2026-10'){
+    // Nur reguläre Monatspositionen rückwirkend aufnehmen. Keine zukünftigen
+    // Einmalposten, keine Quartals-/Jahreskosten und keine explizit später gestarteten Verträge.
+    const sc=schedule(item);
+    if(sc.frequency!=='m'||(item[4]&&item[4]>'2026-10')||(state.schedules[item[0]]?.start&&state.schedules[item[0]].start>'2026-10'))continue;
+    amt=Number(state.values[item[0]]??item[2]);
+    for(const change of [...(state.overrides[item[0]]||[])].sort((a,b)=>a.from.localeCompare(b.from)))if(change.from<=month)amt=Number(change.amount);
+    if(item[0]==='rentalcar')continue;
+   }else amt=amount(item,month);
+   if(!Number.isFinite(amt)||!amt||accountFor(item[0])==='card')continue;
+   const v=g.id==='income'||(g.id==='rental'&&item[0]==='rent')?amt:-amt;if(variableIds.has(item[0])){const daily=Math.round(v*100/dim)/100;let assigned=0;for(let day=1;day<=dim;day++){const date=dayInMonth(month,day),part=day===dim?Math.round((v-assigned)*100)/100:daily;assigned=Math.round((assigned+part)*100)/100;if(date>anchor&&date<=target&&part)events.push({date,label:item[1]+' (Tagesbudget)',value:part,account:accountFor(item[0]),budgetId:item[0]})}}else{let day=dayForItem(item[0],d);const date=plannedDate(item[0],month,d);if(date>anchor&&date<=target)events.push({date,label:item[1],value:v,account:accountFor(item[0])})}}
+  for(const sp of fk35SpecialForMonth(month)){
+   const date=dayInMonth(month,sp.day);if(date>anchor&&date<=target)events.push({date,label:'Sonderausgabe: '+sp.name,value:-sp.amount,account:sp.account,special:true});
   }
-  return {data,notes,anchor,isMonthEnd};
- }};
+  if(month>=state.transfer.start&&Number(state.transfer.amount)>0){const date=dayInMonth(month,state.transfer.day);if(date>anchor&&date<=target){events.push({date,label:'Interne Umbuchung → Sparkassenkonto',value:-Number(state.transfer.amount),account:'salary',transfer:true});events.push({date,label:'Interne Umbuchung ← GLS-Konto',value:Number(state.transfer.amount),account:'second',transfer:true})}}
+  if(state.bonusOn&&month==='2027-05'){const date=dayInMonth(month,d.salaryDay);if(date>anchor&&date<=target)events.push({date,label:'Möglicher Bonus (Szenario)',value:nvalue(state.bonus),account:'salary'})}
+   for(const c of state.customCosts||[]){if(c.month!==month||!(Number(c.amount)>0))continue;const date=dayInMonth(month,Number(c.day)||15);if(date>anchor&&date<=target)events.push({date,label:c.name||'Zusätzliche geplante Ausgabe',value:-Number(c.amount),account:'salary'})}
+ }
+ for(let i=1;i<=2;i++){
+  const open=nvalue(d['card'+i+'Open']),bill=nvalue(d['card'+i+'Bill']),name=d['card'+i+'Name']||'Kreditkarte '+i;
+  if(open<0||bill<0||bill>open){notices.push('Kreditkartenbetrag bei '+name+' prüfen.');continue}
+  const rest=Math.round((open-bill)*100)/100;
+  for(const [date,amount,label] of [[d['card'+i+'Date'],bill,'Nächster Einzug'],[d['card'+i+'RestDate'],rest,'Einzug Restbetrag']]){
+   if(amount>0&&date&&date>anchor&&date<=target)events.push({date,label:name+' – '+label,value:-amount,account:'salary',card:i});
+   if(amount>0&&!date)notices.push(name+': Für '+label.toLowerCase()+' ist kein Einzugstag hinterlegt.');
+   if(amount>0&&date&&date<=anchor)notices.push(name+': Einzugstag liegt am oder vor dem Ausgangsstichtag; bitte Saldo und Termin aktualisieren.');
+  }
+ }
+
+  events.sort((a,b)=>a.date.localeCompare(b.date));
+  let gls=nvalue(d.salary),spark=nvalue(d.second),idx=0;
+  const data={},notes=[];
+  const startMonth=anchor.slice(0,7);
+  if(startMonth>'2026-11')notes.push('Monate vor dem Kontostichtag sind nicht rückwirkend berechenbar.');
+  for(let y=2026;y<=2028;y++)for(let m=y===2026?11:1;m<=12;m++){
+   const key=y+'-'+String(m).padStart(2,'0');
+   if(key<startMonth){data[key]=null;continue;}
+   const monthEnd=key+'-'+String(new Date(y,m,0).getDate()).padStart(2,'0');
+   while(idx<events.length&&events[idx].date<=monthEnd){const e=events[idx++];if(e.account==='second')spark+=e.value;else gls+=e.value;}
+   data[key]={gls,spark,total:gls+spark,exact:true};
+  }
+  notes.push('Ab dem eingetragenen Kontostichtag werden ausschließlich spätere Buchungen angesetzt; bereits erfolgte Darlehensabbuchungen werden nicht erneut berechnet.');
+  notes.push('Die Zahlungstage entsprechen der taggenauen Liquiditätsprognose. Variable Budgets werden über die Monatstage verteilt.');
+  notes.push(...notices);
+  return {data,notes,anchor,openingTotal:nvalue(d.salary)+nvalue(d.second)};
+ }
+ };
 </script><script>/* Version 3.1: reine Neuordnung der Oberfläche; Berechnung und Datenspeicher unverändert. */
 (()=>{
  const $=id=>document.getElementById(id);
@@ -574,7 +593,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
 })();
 </script>
 <!-- Ende Finanzkompass 3.6 -->
-<!-- Finanzkompass 3.8: Monatsprognose mit Dispo November 2026 bis Dezember 2028 -->
+<!-- Finanzkompass 3.9: Monatsprognose mit Dispo November 2026 bis Dezember 2028 -->
 <style>
 #fk37MonthlyView .fk37-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 #fk37MonthlyView table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;white-space:nowrap;font-size:13px}
@@ -606,7 +625,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
   for(const name of ['Monat','Einnahmen','Reguläre Ausgaben','Überschuss vor Sonderausgaben','Sonderausgaben','Weitere Effekte','Monatsergebnis','GLS Monatsende','Sparkasse Monatsende','Gesamtsaldo Monatsende']){const th=document.createElement('th');th.textContent=name;head.append(th)}
   const thead=document.createElement('thead');thead.append(head);table.append(thead);
   const tbody=document.createElement('tbody');
-  const sums={};const projection=source.accountProjection();let firstCleared=null,previousNegative=null;
+  const sums={};const projection=source.accountProjection();let firstCleared=null,previousNegative=projection.openingTotal<0;
   for(let year=2026;year<=2028;year++)for(let month=(year===2026?11:1);month<=12;month++){
    const key=year+'-'+String(month).padStart(2,'0');
    const t=source.totals(key),special=source.special(key),regularExpense=t.expense-special;
@@ -631,7 +650,7 @@ drawEntries();update();const hp=document.querySelector('header p');if(hp)hp.text
  const tabs=['tabPlan','tabLiquidity','tabAnnual'];
  for(const id of tabs){const el=document.getElementById(id);if(!el)continue;const prior=el.onclick;el.onclick=function(e){view.classList.add('hidden');button.classList.remove('active');if(prior)prior.call(this,e)};}
  button.onclick=()=>{for(const id of tabs){document.getElementById(id)?.classList.remove('active')}for(const id of ['planView','liquidityView','annualView'])document.getElementById(id)?.classList.add('hidden');button.classList.add('active');view.classList.remove('hidden');render();window.scrollTo({top:0,behavior:'instant'})};
- const oldTitle=document.querySelector('header p');if(oldTitle)oldTitle.textContent='Private Haushaltsplanung · iPhone-PWA 3.8';
+ const oldTitle=document.querySelector('header p');if(oldTitle)oldTitle.textContent='Private Haushaltsplanung · iPhone-PWA 3.9';
 })();
 </script>
 <!-- Ende Finanzkompass 3.7 -->

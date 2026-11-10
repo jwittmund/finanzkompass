@@ -3,15 +3,14 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#142b45">
-<title>Finanzkompass 5.2</title>
+<title>Finanzkompass 5.3</title>
 <style>
 :root{
  --navy:#142b45;--blue:#285b88;--bg:#f3f6fa;
  --line:#dce5ee;--muted:#62738a;--green:#08795a;
- --red:#b53535;--amber:#fff5e5
+ --red:#b53535;--light:#eaf0f6
 }
 *{box-sizing:border-box}
 body{
@@ -19,163 +18,124 @@ body{
  font:15px/1.5 -apple-system,BlinkMacSystemFont,
  "Segoe UI",sans-serif
 }
-header{background:var(--navy);color:white;padding:22px 16px}
+header{background:var(--navy);color:white;padding:20px 15px}
 header h1{margin:0;font-size:24px}
 header small{opacity:.8}
 nav{
- display:flex;overflow-x:auto;background:white;
- position:sticky;top:0;z-index:10;
- border-bottom:1px solid var(--line)
+ display:flex;overflow-x:auto;position:sticky;top:0;
+ z-index:10;background:white;border-bottom:1px solid var(--line)
 }
 nav button{
- flex:1 0 auto;background:none;color:#52657a;
- border:0;border-bottom:3px solid transparent;
- border-radius:0;padding:13px 11px;
- font-size:13px;font-weight:700
+ flex:1 0 auto;border:0;border-bottom:3px solid transparent;
+ background:white;color:#52657a;border-radius:0;
+ padding:13px 10px;font-size:12px;font-weight:700
 }
 nav button.active{
  color:var(--blue);border-bottom-color:var(--blue)
 }
-main{max-width:1120px;margin:auto;padding:15px 11px 55px}
-.tab{display:none}
-.tab.active{display:block}
-h2{font-size:21px;margin:4px 0 15px}
-h3{font-size:17px;margin:4px 0 12px}
-h4{font-size:15px;margin:12px 0 7px}
+main{max-width:1120px;margin:auto;padding:13px 10px 50px}
+.tab{display:none}.tab.active{display:block}
+h2{font-size:21px;margin:5px 0 14px}
+h3{font-size:17px;margin:3px 0 11px}
+h4{font-size:15px;margin:12px 0 6px}
 p{margin:8px 0 12px}
 .card{
  background:white;border:1px solid var(--line);
- border-radius:15px;padding:17px;margin-bottom:13px
+ border-radius:14px;padding:16px;margin-bottom:13px
 }
 .grid{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
- gap:12px
+ display:grid;grid-template-columns:
+ repeat(auto-fit,minmax(210px,1fr));gap:12px
 }
 .grid>.card{margin-bottom:0}
 .metric{font-size:23px;font-weight:800}
 .muted{color:var(--muted);font-size:13px}
-.negative{color:var(--red)}
-.positive{color:var(--green)}
+.negative{color:var(--red)}.positive{color:var(--green)}
 label{display:block;font-weight:650;margin:10px 0 5px}
 input,select,textarea{
- width:100%;border:1px solid #bfccda;
- border-radius:9px;padding:10px;background:white;
- color:#192b40;font:inherit;font-size:16px
+ width:100%;padding:10px;border:1px solid #bfccda;
+ border-radius:9px;background:white;color:#192b40;
+ font:inherit;font-size:16px
 }
-input[type=checkbox]{width:auto;accent-color:var(--blue)}
+input[type=checkbox]{width:auto}
 button{
  background:var(--blue);color:white;border:0;
- border-radius:9px;padding:10px 13px;
- font:inherit;font-weight:700;cursor:pointer
+ border-radius:9px;padding:10px 13px;font:inherit;
+ font-weight:700;cursor:pointer
 }
 button.secondary{background:#e9f0f6;color:#244665}
 button.danger{background:#a93131}
-button:disabled{opacity:.45}
+button.mini{font-size:12px;padding:7px 10px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .row{
- display:flex;align-items:center;justify-content:space-between;
+ display:flex;justify-content:space-between;align-items:center;
  gap:12px;padding:10px 0;border-bottom:1px solid #edf1f5
 }
 .row:last-child{border-bottom:0}
 .row strong{text-align:right}
 .notice{
- background:var(--amber);border-left:4px solid #d99a31;
+ background:#fff5e5;border-left:4px solid #d99a31;
  padding:12px;border-radius:8px;margin:12px 0
 }
 .notice.good{
  background:#eaf8f1;border-left-color:var(--green)
 }
-.two{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(185px,1fr));
- gap:11px
+.two,.editgrid{
+ display:grid;grid-template-columns:
+ repeat(auto-fit,minmax(175px,1fr));gap:11px
 }
 details{
  border:1px solid var(--line);border-radius:11px;
  padding:12px;margin:10px 0;background:white
 }
 summary{cursor:pointer;font-weight:750}
+.tablewrap{overflow-x:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th,td{
  padding:9px 7px;border-bottom:1px solid var(--line);
  text-align:right;white-space:nowrap
 }
 th:first-child,td:first-child{text-align:left}
-.tablewrap{overflow-x:auto}
 .group{
- margin:12px 0;border:1px solid var(--line);
- border-radius:13px;background:white;overflow:hidden;
- padding:0
+ margin:12px 0;padding:0;overflow:hidden;
+ border:1px solid var(--line);border-radius:13px
 }
 .group>summary{
- padding:15px;background:#eaf0f6;color:#183e61;
- font-size:15px
+ padding:15px;background:var(--light);color:#183e61
 }
 .groupbody{padding:10px}
-.item{
- padding:12px 7px;border-bottom:1px solid #e8edf2
-}
-.item:last-child{border-bottom:0}
-.itemhead{
+.group-title{
  display:flex;justify-content:space-between;
  align-items:center;gap:12px
 }
+.group-sum{font-weight:800;white-space:nowrap}
+.item{padding:12px 6px;border-bottom:1px solid #e8edf2}
+.item:last-child{border-bottom:0}
 .itemname{font-weight:750}
 .itemmeta{font-size:12px;color:var(--muted)}
-.editgrid{
- display:grid;
- grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
- gap:10px;margin-top:12px
-}
-.editgrid label{font-size:13px}
-.mini{font-size:12px;padding:6px 9px}
 .change{
  display:grid;grid-template-columns:1fr 1fr auto;
  gap:8px;align-items:end;margin-top:8px
 }
-.badge{
- display:inline-block;padding:3px 8px;
- background:#e6eef7;border-radius:15px;
- font-size:12px;color:#24547c
-}
 .toolbar{
  display:flex;justify-content:space-between;
- gap:10px;align-items:end;flex-wrap:wrap;
- margin-bottom:12px
+ align-items:end;gap:12px;flex-wrap:wrap
 }
-.toolbar .actions{margin-top:0}
-.toolbar input{max-width:180px}
-.group-title{
- display:flex;justify-content:space-between;
- gap:12px;align-items:center
-}
-.group-sum{
- font-weight:800;white-space:nowrap;color:#183e61
-}
-.special-head{
- display:flex;justify-content:space-between;
- align-items:center;gap:10px
-}
-footer{
- text-align:center;color:var(--muted);
- font-size:12px;padding:20px
-}
+.toolbar input{max-width:190px}
+.toolbar .actions{margin:0}
+footer{text-align:center;font-size:12px;color:var(--muted)}
 @media(max-width:520px){
- main{padding:11px 8px 45px}
  .card{padding:13px}
- nav button{font-size:12px;padding:12px 9px}
- .metric{font-size:21px}
  .change{grid-template-columns:1fr 1fr}
- .group-title{align-items:flex-start}
+ nav button{padding:12px 9px}
 }
 </style>
 </head>
 <body>
 
 <header>
-<h1>Finanzkompass 5.2</h1>
-<small>Private Finanzplanung · lokal im Browser</small>
+<h1>Finanzkompass 5.3</h1>
+<small>Private Finanzplanung · lokale Datenhaltung</small>
 </header>
 
 <nav>
@@ -192,7 +152,7 @@ footer{
 <h2>Finanzübersicht</h2>
 <div id="startCards" class="grid"></div>
 <div class="card">
-<h3>Finanzielle Situation</h3>
+<h3>Hinweise</h3>
 <div id="startAdvice"></div>
 </div>
 <div class="card">
@@ -209,35 +169,33 @@ footer{
 <h3>Interne Daueraufträge</h3>
 <div class="row">
 <span>GLS · 00 → Sparkasse<br>
-<small class="muted">Monatlich am 1.</small></span>
+<small class="muted">Monatlich zum 1. Bankarbeitstag</small>
+</span>
 <strong>1.600,00 €</strong>
 </div>
 <div class="row">
 <span>GLS · 00 → GLS · 02<br>
-<small class="muted">Monatlich am 1.</small></span>
+<small class="muted">Monatlich zum 1. Bankarbeitstag</small>
+</span>
 <strong>300,00 €</strong>
 </div>
 <div class="row">
 <span>GLS · 00 → GLS · 01<br>
-<small class="muted">Deaktiviert</small></span>
+<small class="muted">Derzeit deaktiviert</small>
+</span>
 <strong>0,00 €</strong>
 </div>
-<p class="muted">
-Interne Überweisungen verändern die Summe der Bankguthaben
-nicht. Die einzelnen Konten werden jedoch separat belastet
-beziehungsweise gutgeschrieben.
-</p>
 </div>
 
 <div class="card">
 <h3>Liquiditätsprognose</h3>
 <div class="two">
 <div>
-<label for="forecastFrom">Beginn</label>
+<label>Beginn</label>
 <input id="forecastFrom" type="date">
 </div>
 <div>
-<label for="forecastTo">Ende</label>
+<label>Ende</label>
 <input id="forecastTo" type="date">
 </div>
 </div>
@@ -251,7 +209,7 @@ beziehungsweise gutgeschrieben.
 <div id="forecastDaily" class="tablewrap"></div>
 </details>
 <details>
-<summary>Geplante Buchungen</summary>
+<summary>Buchungen einschließlich Sondertilgungen</summary>
 <div id="forecastEvents" class="tablewrap"></div>
 </details>
 </div>
@@ -267,10 +225,6 @@ beziehungsweise gutgeschrieben.
 
 <div class="card">
 <h3>Sonderausgaben & Projekte</h3>
-<p class="muted">
-Einmalige und jährlich wiederkehrende Ausgaben.
-Zum Bearbeiten auf den Bleistift klicken.
-</p>
 <div id="specialList"></div>
 <div class="actions">
 <button id="addSpecial">+ Sonderausgabe hinzufügen</button>
@@ -281,12 +235,12 @@ Zum Bearbeiten auf den Bleistift klicken.
 <h3>Urlaubsplanung</h3>
 <div class="two">
 <div>
-<label>Urlaubsbudget pro Jahr (€)</label>
+<label>Jahresbudget (€)</label>
 <input id="vacationAmount" type="number" step="0.01">
 </div>
 <div>
 <label>Ab Jahr</label>
-<input id="vacationStart" type="number" min="2020">
+<input id="vacationStart" type="number">
 </div>
 <div>
 <label>Ausgabemonat</label>
@@ -294,17 +248,17 @@ Zum Bearbeiten auf den Bleistift klicken.
 </div>
 </div>
 <div class="actions">
-<button id="saveVacation">Urlaubsplanung speichern</button>
+<button id="saveVacation">Speichern</button>
 </div>
 </div>
 
 <div class="card">
 <h3>Fahrzeug-Szenario</h3>
-<label for="carScenario">Szenario</label>
+<label>Szenario</label>
 <select id="carScenario">
 <option value="keep">EQA behalten</option>
-<option value="rental">EQA verkaufen + Mietwagen</option>
-<option value="replacement">EQA verkaufen + Ersatzwagen</option>
+<option value="rental">Verkaufen + Mietwagen</option>
+<option value="replacement">Verkaufen + Ersatzwagen</option>
 </select>
 <div class="two">
 <div>
@@ -312,15 +266,15 @@ Zum Bearbeiten auf den Bleistift klicken.
 <input id="carSwitch" type="month">
 </div>
 <div>
-<label>Verkauf minus Ablösung (€)</label>
+<label>Nettoerlös aus Verkauf (€)</label>
 <input id="carSaleNet" type="number" step="0.01">
 </div>
 <div>
-<label>Mietwagen monatlich (€)</label>
+<label>Mietwagen (€ / Monat)</label>
 <input id="carRental" type="number" step="0.01">
 </div>
 <div>
-<label>Ersatzwagenrate (€)</label>
+<label>Ersatzwagenrate (€ / Monat)</label>
 <input id="carReplacementLoan" type="number" step="0.01">
 </div>
 <div>
@@ -328,9 +282,8 @@ Zum Bearbeiten auf den Bleistift klicken.
 <input id="carReplacementOther" type="number" step="0.01">
 </div>
 </div>
-<p id="carComparison"></p>
 <div class="actions">
-<button id="saveCar">Fahrzeugszenario speichern</button>
+<button id="saveCar">Speichern</button>
 </div>
 </div>
 
@@ -346,18 +299,18 @@ Bonus berücksichtigen
 <input id="bonusAmount" type="number" step="0.01">
 </div>
 <div>
-<label>Erwarteter Monat</label>
+<label>Monat</label>
 <input id="bonusMonth" type="month">
 </div>
 </div>
 <div class="actions">
-<button id="saveBonus">Bonus speichern</button>
+<button id="saveBonus">Speichern</button>
 </div>
 </div>
 
 <div class="card">
 <h3>Monatsplanung</h3>
-<label>Planungsmonat</label>
+<label>Bezugsmonat</label>
 <input id="budgetMonth" type="month">
 <div id="planningSummary"></div>
 <div id="planningSpecialSummary"></div>
@@ -375,7 +328,7 @@ Bonus berücksichtigen
 <input id="mortBalance" type="number" step="0.01">
 </div>
 <div>
-<label>Restschuld zum Monat</label>
+<label>Restschuld zum Monatsende</label>
 <input id="mortAsOf" type="month">
 </div>
 <div>
@@ -387,7 +340,7 @@ Bonus berücksichtigen
 <input id="mortPayment" type="number" step="0.01">
 </div>
 <div>
-<label>Sondertilgungslimit / Jahr (€)</label>
+<label>Jährliche Sondertilgungsgrenze (€)</label>
 <input id="mortCap" type="number" step="0.01">
 </div>
 <div>
@@ -406,17 +359,18 @@ Bonus berücksichtigen
 <div class="actions">
 <button id="saveMortgage">Darlehensdaten speichern</button>
 <button id="calculateMortgage" class="secondary">
-Automatische Tilgung berechnen
+Automatische Sondertilgung berechnen
 </button>
 </div>
 </div>
 
 <div class="card">
-<h3>Automatischer Sondertilgungsplan · jeweils Juli</h3>
+<h3>Automatische Sondertilgung · Juli</h3>
 <p class="muted">
-Finanzkompass berechnet jährlich den verfügbaren Betrag
-oberhalb der Mindestreserve. Die Restschuld wird zum
-Juli-Stichtag nach der Sondertilgung ausgewiesen.
+Die Restschuld wird jeweils zum 31. Juli nach der
+Sondertilgung ausgewiesen. Die Berechnung verwendet
+die Liquidität auf GLS · 00 und berücksichtigt
+die übrigen Konten, Kreditkarten und geschützten Rücklagen.
 </p>
 <div id="mortgageSummary"></div>
 <div id="mortgageTable" class="tablewrap"></div>
@@ -428,15 +382,9 @@ Juli-Stichtag nach der Sondertilgung ausgewiesen.
 
 <div class="card">
 <h3>Regelmäßige Einnahmen und Ausgaben</h3>
-<p class="muted">
-Nach den ursprünglichen Kategorien gruppiert.
-Beträge, Konten, Laufzeiten und zukünftige Änderungen
-lassen sich direkt bei der jeweiligen Position bearbeiten.
-</p>
-
 <div class="toolbar">
 <div>
-<label for="groupMonth">Bezugsmonat</label>
+<label>Bezugsmonat</label>
 <input id="groupMonth" type="month">
 </div>
 <div class="actions">
@@ -448,33 +396,28 @@ Alle einklappen
 </button>
 </div>
 </div>
-
 <div id="groupedItems"></div>
 </div>
 
 <div class="card">
-<h3>Allgemeine Zahlungsregeln</h3>
+<h3>Zahlungsregeln</h3>
 <div class="two">
 <div>
 <label>Gehaltstag</label>
 <input id="salaryDay" type="number" min="1" max="31">
 </div>
 <div>
-<label>Standard-Fälligkeit</label>
+<label>Standard-Zahlungstag</label>
 <input id="defaultDay" type="number" min="1" max="31">
 </div>
 </div>
 <div class="actions">
-<button id="saveSettings">Einstellungen speichern</button>
+<button id="saveSettings">Speichern</button>
 </div>
 </div>
 
 <div class="card">
 <h3>Private Datensicherung</h3>
-<p>
-Bisherige Finanzkompass-JSON-Datei importieren oder
-eine neue vollständige Sicherung exportieren.
-</p>
 <input id="importFile" type="file"
 accept=".json,application/json">
 <div class="actions">
@@ -489,48 +432,48 @@ JSON-Sicherung exportieren
 <div class="card">
 <h3>Datenschutz</h3>
 <p>
-Alle Finanzdaten werden ausschließlich im lokalen
-Browserspeicher abgelegt. Die HTML-Datei enthält
-keine persönlichen Finanzbeträge.
+Die Anwendung speichert deine Finanzdaten lokal im Browser.
+Diese HTML-Datei enthält keine persönlichen Kontostände
+oder Darlehensbeträge.
 </p>
 </div>
 </section>
 
 </main>
 
-<footer>
-Finanzkompass 5.2 · Private Finanzplanung
-</footer>
+<footer>Finanzkompass 5.3 · Testversion</footer>
 
 <script>
 "use strict";
 
-const KEY="finanzkompass_v52";
-const PREVIOUS_KEY="finanzkompass_v50";
-const OLD_KEY="finanzkompass_v04";
+/* ========================================
+   GRUNDLAGEN
+======================================== */
+
+const KEY="finanzkompass_v53";
+const PREVIOUS=["finanzkompass_v52","finanzkompass_v50"];
+const OLD="finanzkompass_v04";
 
 const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const round=n=>Math.round((Number(n)+Number.EPSILON)*100)/100;
 
 const euro=n=>new Intl.NumberFormat("de-DE",{
  style:"currency",currency:"EUR"
 }).format(Number(n)||0);
 
-const round=n=>
- Math.round((Number(n)+Number.EPSILON)*100)/100;
-
-function parseMoney(v){
+function money(v){
  if(v===null||v===undefined||v==="")return null;
  if(typeof v==="number")
   return Number.isFinite(v)?v:null;
- const s=String(v).trim().replace(/\s|€/g,"");
+ const s=String(v).replace(/\s|€/g,"");
  const n=s.includes(",")
   ?Number(s.replace(/\./g,"").replace(",","."))
   :Number(s);
  return Number.isFinite(n)?n:null;
 }
 
-const num=v=>parseMoney(v)??0;
-const pad=n=>String(n).padStart(2,"0");
+const num=v=>money(v)??0;
 
 function today(){
  const d=new Date();
@@ -545,7 +488,7 @@ function addDays(s,n){
   "-"+pad(d.getDate());
 }
 
-function monthAdd(m,n){
+function addMonths(m,n){
  const d=new Date(m+"-01T12:00:00");
  d.setMonth(d.getMonth()+n);
  return d.getFullYear()+"-"+pad(d.getMonth()+1);
@@ -557,31 +500,99 @@ function dateInMonth(m,day){
   Number(m.slice(5,7)),0
  ).getDate();
  return m+"-"+pad(
-  Math.min(last,Math.max(1,Number(day)||1))
+  Math.max(1,Math.min(last,Number(day)||1))
  );
 }
 
-function businessDay(s){
- let d=s;
- while([0,6].includes(
-  new Date(d+"T12:00:00").getDay()
- ))d=addDays(d,1);
- return d;
+function monthEnd(m){
+ return dateInMonth(m,31);
 }
 
-function node(tag,text,cls){
+function make(tag,text,cls){
  const e=document.createElement(tag);
  if(text!==undefined)e.textContent=text;
  if(cls)e.className=cls;
  return e;
 }
 
-function stored(key){
+function readStore(key){
  try{
   const x=JSON.parse(localStorage.getItem(key));
   return x&&typeof x==="object"?x:null;
  }catch{return null}
 }
+
+function htmlTable(headers,rows){
+ const table=make("table");
+ const head=make("tr");
+ headers.forEach(h=>head.append(make("th",h)));
+ table.append(head);
+ rows.forEach(values=>{
+  const tr=make("tr");
+  values.forEach(v=>tr.append(make("td",String(v))));
+  table.append(tr);
+ });
+ return table;
+}
+
+function showMessage(root,text,good=false){
+ const e=make("div",text,
+  good?"notice good":"notice");
+ root.append(e);
+}
+
+/* ========================================
+   BANKARBEITSTAGE
+======================================== */
+
+function easter(year){
+ const a=year%19;
+ const b=Math.floor(year/100);
+ const c=year%100;
+ const d=Math.floor(b/4);
+ const e=b%4;
+ const f=Math.floor((b+8)/25);
+ const g=Math.floor((b-f+1)/3);
+ const h=(19*a+b-d-g+15)%30;
+ const i=Math.floor(c/4);
+ const k=c%4;
+ const l=(32+2*e+2*i-h-k+7)%7;
+ const m=Math.floor((a+11*h+22*l)/451);
+ const month=Math.floor((h+l-7*m+114)/31);
+ const day=(h+l-7*m+114)%31+1;
+ return year+"-"+pad(month)+"-"+pad(day);
+}
+
+function holidays(year){
+ const eas=easter(year);
+ const fixed=[
+  "01-01","03-08","05-01","10-03",
+  "12-25","12-26"
+ ].map(x=>year+"-"+x);
+
+ return new Set([
+  ...fixed,
+  addDays(eas,-2),
+  addDays(eas,1),
+  addDays(eas,39),
+  addDays(eas,50)
+ ]);
+}
+
+function bankingDay(s){
+ let d=s;
+ while(true){
+  const day=new Date(d+"T12:00:00").getDay();
+  if(day!==0&&day!==6&&
+   !holidays(Number(d.slice(0,4))).has(d))
+   return d;
+  d=addDays(d,1);
+ }
+}
+
+/* ========================================
+   DATENMODELL
+======================================== */
 
 const NAMES={
  gls00:"GLS · 00",
@@ -592,14 +603,11 @@ const NAMES={
  card2:"Kreditkarte O"
 };
 
-const ROUTES=[
- ["gls00","GLS · 00"],
- ["gls01","GLS · 01"],
- ["gls02","GLS · 02"],
- ["sparkasse","Sparkasse"],
- ["card1","Kreditkarte J"],
- ["card2","Kreditkarte O"]
+const BANKS=[
+ "gls00","gls01","gls02","sparkasse"
 ];
+
+const ROUTES=Object.entries(NAMES);
 
 const FREQUENCIES=[
  ["m","Monatlich"],
@@ -624,7 +632,7 @@ const VEHICLE=new Set([
 
 function defaults(){
  return {
-  version:52,
+  version:53,
   imported:false,
   accounts:{
    gls00:{balance:null,date:null},
@@ -633,10 +641,14 @@ function defaults(){
    sparkasse:{balance:null,date:null}
   },
   cards:[
-   {name:"GLS Kreditkarte J",open:0,bill:0,
-    billDate:"",restDate:""},
-   {name:"GLS Kreditkarte O",open:0,bill:0,
-    billDate:"",restDate:""}
+   {
+    name:"GLS Kreditkarte J",
+    open:0,bill:0,billDate:"",restDate:""
+   },
+   {
+    name:"GLS Kreditkarte O",
+    open:0,bill:0,billDate:"",restDate:""
+   }
   ],
   groups:[],
   values:{},
@@ -652,7 +664,7 @@ function defaults(){
    scenario:"replacement",
    switchMonth:"",
    saleNet:0,
-   rental:0,
+   rental:166.67,
    replacementLoan:0,
    replacementOther:0
   },
@@ -668,17 +680,40 @@ function defaults(){
   },
   settings:{
    salaryDay:28,
-   defaultDay:15,
-   mortgageIncludedInItems:true
+   defaultDay:15
   }
+ };
+}
+
+function normalize(d){
+ const b=defaults();
+ return {
+  ...b,...d,
+  version:53,
+  accounts:{...b.accounts,...d.accounts},
+  cards:Array.isArray(d.cards)?d.cards:b.cards,
+  groups:Array.isArray(d.groups)?d.groups:[],
+  values:d.values||{},
+  schedules:d.schedules||{},
+  overrides:d.overrides||{},
+  dueDays:d.dueDays||{},
+  routes:d.routes||{},
+  specialExpenses:Array.isArray(d.specialExpenses)
+   ?d.specialExpenses:[],
+  customCosts:Array.isArray(d.customCosts)
+   ?d.customCosts:[],
+  vacation:{...b.vacation,...d.vacation},
+  bonus:{...b.bonus,...d.bonus},
+  vehicle:{...b.vehicle,...d.vehicle},
+  mortgage:{...b.mortgage,...d.mortgage},
+  settings:{...b.settings,...d.settings}
  };
 }
 
 function migrateOld(old){
  const d=defaults();
  d.imported=true;
- d.groups=Array.isArray(old.privateGroups)
-  ?old.privateGroups:[];
+ d.groups=old.privateGroups||[];
  d.values=old.values||{};
  d.schedules=old.schedules||{};
  d.overrides=old.overrides||{};
@@ -688,12 +723,12 @@ function migrateOld(old){
  const liq=old.liquidity||{};
 
  d.accounts.gls00={
-  balance:parseMoney(liq.salary),
+  balance:money(liq.salary),
   date:liq.anchor||null
  };
 
  d.accounts.sparkasse={
-  balance:parseMoney(liq.second),
+  balance:money(liq.second),
   date:liq.anchor||null
  };
 
@@ -712,21 +747,16 @@ function migrateOld(old){
   old.accountRoutes||{}
  )){
   d.routes[id]=
-   r==="second"?"sparkasse":
    r==="salary"?"gls00":
+   r==="second"?"sparkasse":
    r==="card"?"card1":r;
  }
 
  const f=old.fk32||{};
 
- d.specialExpenses=Array.isArray(f.specialExpenses)
-  ?f.specialExpenses:[];
-
- d.vacation={
-  amount:num(f.vacationAmount),
-  start:Number(f.vacationStart)||2030,
-  month:7
- };
+ d.specialExpenses=Array.isArray(
+  f.specialExpenses
+ )?f.specialExpenses:[];
 
  d.bonus={
   enabled:!!old.bonusOn,
@@ -734,56 +764,47 @@ function migrateOld(old){
   month:f.bonusMonth||"2027-05"
  };
 
- d.vehicle={
-  scenario:old.eqaSold?"rental":"replacement",
-  switchMonth:f.carSaleMonth||"2027-02",
-  saleNet:num(f.carSaleProceeds)-
-   num(f.carLoanSettlement),
-  rental:num(d.values.rentalcar),
-  replacementLoan:0,
-  replacementOther:0
+ d.vehicle.scenario=
+  old.eqaSold?"rental":"replacement";
+
+ d.vehicle.switchMonth=
+  f.carSaleMonth||"2027-02";
+
+ d.vehicle.saleNet=
+  num(f.carSaleProceeds)-
+  num(f.carLoanSettlement);
+
+ d.vacation={
+  amount:num(f.vacationAmount),
+  start:Number(f.vacationStart)||2030,
+  month:7
  };
 
- d.mortgage={
-  balance:parseMoney(f.mortgageBalance),
-  asOf:f.mortgageAsOf||"",
-  rate:num(f.mortgageRate)||3.95,
-  payment:parseMoney(f.mortgagePayment),
-  fixedEnd:(f.fixedRateEnd||"2044-07")+"-31",
-  cap:num(f.repaymentCap)||28350,
-  reserve:num(f.minimumReserve)||10000,
-  followRate:num(f.followUpRate)||6
- };
+ d.mortgage.balance=money(f.mortgageBalance);
+ d.mortgage.asOf=f.mortgageAsOf||"";
+ d.mortgage.rate=num(f.mortgageRate)||3.95;
+ d.mortgage.payment=money(f.mortgagePayment);
 
- d.settings.salaryDay=Number(liq.salaryDay)||28;
- d.settings.defaultDay=Number(liq.defaultDay)||15;
+ if(f.fixedRateEnd){
+  d.mortgage.fixedEnd=
+   String(f.fixedRateEnd).length===7
+    ?f.fixedRateEnd+"-31"
+    :f.fixedRateEnd;
+ }
 
  return d;
 }
 
-function normalize(data){
- const base=defaults();
- return {
-  ...base,...data,version:52,
-  accounts:{...base.accounts,...data.accounts},
-  cards:Array.isArray(data.cards)
-   ?data.cards:base.cards,
-  mortgage:{...base.mortgage,...data.mortgage},
-  vehicle:{...base.vehicle,...data.vehicle},
-  vacation:{...base.vacation,...data.vacation},
-  bonus:{...base.bonus,...data.bonus},
-  settings:{...base.settings,...data.settings}
- };
-}
-
 function load(){
- const current=stored(KEY);
- if(current)return normalize(current);
+ const v=readStore(KEY);
+ if(v)return normalize(v);
 
- const previous=stored(PREVIOUS_KEY);
- if(previous)return normalize(previous);
+ for(const key of PREVIOUS){
+  const x=readStore(key);
+  if(x)return normalize(x);
+ }
 
- const old=stored(OLD_KEY);
+ const old=readStore(OLD);
  return old?migrateOld(old):defaults();
 }
 
@@ -798,6 +819,10 @@ function save(){
   return false;
  }
 }
+
+/* ========================================
+   REGELMÄSSIGE ZAHLUNGEN
+======================================== */
 
 function allItems(){
  return state.groups.flatMap(g=>
@@ -817,9 +842,16 @@ function allItems(){
 function routeFor(item){
  if(state.routes[item.id])
   return state.routes[item.id];
- if(SPARKASSE.has(item.id))return "sparkasse";
- if(RESERVES.has(item.id))return "gls02";
- if(item.id==="charging")return "card1";
+
+ if(SPARKASSE.has(item.id))
+  return "sparkasse";
+
+ if(RESERVES.has(item.id))
+  return "gls02";
+
+ if(item.id==="charging")
+  return "card1";
+
  return "gls00";
 }
 
@@ -827,14 +859,16 @@ function schedule(item){
  const s=state.schedules[item.id]||{};
  return {
   frequency:s.frequency||item.frequency,
-  start:s.start||item.start||"1900-01",
+  start:s.start||item.start||"2026-11",
   end:s.end||item.end||"9999-12"
  };
 }
 
 function due(item,month){
  const s=schedule(item);
- if(month<s.start||month>s.end)return false;
+
+ if(month<s.start||month>s.end)
+  return false;
 
  const diff=
   (Number(month.slice(0,4))-
@@ -849,28 +883,50 @@ function due(item,month){
   (s.frequency==="o"&&diff===0);
 }
 
+function changesFor(id){
+ const raw=state.overrides[id];
+
+ if(Array.isArray(raw))return raw;
+
+ if(raw&&typeof raw==="object"){
+  return Object.entries(raw)
+   .filter(([key])=>/^\d{4}-\d{2}$/.test(key))
+   .map(([from,amount])=>({from,amount}));
+ }
+
+ return [];
+}
+
 function amount(item,month){
  if(!due(item,month))return 0;
 
- let v=Number(
+ let v=num(
   state.values[item.id]??item.original
  );
 
- const changes=state.overrides[item.id]||[];
+ const changes=[...changesFor(item.id)]
+  .sort((a,b)=>
+   String(a.from).localeCompare(String(b.from))
+  );
 
- for(const c of [...changes].sort((a,b)=>
-  String(a.from).localeCompare(String(b.from))
- )){
+ for(const c of changes){
   if(c.from<=month)v=num(c.amount);
  }
 
- return Number.isFinite(v)?v:0;
+ return v;
 }
 
-function income(item){
- return item.groupId==="income"||
-  (item.groupId==="rental"&&item.id==="rent")||
-  /^salary/i.test(item.id);
+function isIncome(item){
+ const group=(item.groupId+" "+item.group)
+  .toLowerCase();
+
+ return /einnahme|gehalt|mieteinnahme|income/.test(group)||
+  /^(salary|rent|income)/i.test(item.id);
+}
+
+function isMortgageItem(item){
+ return /darlehen|hypothek|baufinanz|immobilienkredit|mortgage|hauskredit/i
+  .test(item.id+" "+item.name);
 }
 
 function vehicleAllowed(item,month){
@@ -909,10 +965,13 @@ function specialForMonth(month){
  for(const s of state.specialExpenses){
   if(!s.recurring&&Number(s.year)!==year)
    continue;
+
   if(s.recurring&&year<Number(s.year))
    continue;
+
   if((Number(s.month)||7)!==mo)
    continue;
+
   result.push(s);
  }
 
@@ -922,9 +981,7 @@ function specialForMonth(month){
   result.push({
    name:"Urlaub",
    amount:v.amount,
-   year,
-   month:mo,
-   day:15,
+   year,month:mo,day:15,
    account:"gls00",
    recurring:true
   });
@@ -934,14 +991,15 @@ function specialForMonth(month){
 }
 
 function budget(month){
- let incoming=0;
- let outgoing=0;
+ let incoming=0,outgoing=0;
 
  for(const item of allItems()){
   if(!vehicleAllowed(item,month))continue;
-  const v=amount(item,month);
-  if(income(item))incoming+=v;
-  else outgoing+=v;
+
+  const value=amount(item,month);
+
+  if(isIncome(item))incoming+=value;
+  else outgoing+=value;
  }
 
  outgoing+=vehicleExtra(month);
@@ -964,10 +1022,14 @@ function budget(month){
  };
 }
 
+/* ========================================
+   EINGABEFELDER
+======================================== */
+
 function field(label,value,callback,type="text"){
- const box=node("div");
- const l=node("label",label);
- const input=node("input");
+ const box=make("div");
+ const l=make("label",label);
+ const input=make("input");
 
  input.type=type;
  input.value=value??"";
@@ -982,15 +1044,15 @@ function field(label,value,callback,type="text"){
 }
 
 function selectField(label,value,options,callback){
- const box=node("div");
- box.append(node("label",label));
+ const box=make("div");
+ box.append(make("label",label));
 
- const select=node("select");
+ const select=make("select");
 
  for(const [v,t] of options){
-  const o=node("option",t);
-  o.value=v;
-  select.append(o);
+  const option=make("option",t);
+  option.value=v;
+  select.append(option);
  }
 
  select.value=value;
@@ -1004,30 +1066,31 @@ function selectField(label,value,options,callback){
  return box;
 }
 
-/* =========================================
-   DATEN & EINSTELLUNGEN
-   ========================================= */
+/* ========================================
+   GRUPPIERTE DATENPFLEGE
+======================================== */
 
 function groupSum(group,month){
- return round((group.items||[]).reduce((sum,raw)=>{
-  const item={
-   groupId:group.id||"",
-   id:raw[0],
-   name:raw[1],
-   original:num(raw[2]),
-   frequency:raw[3]||"m",
-   start:raw[4]||"",
-   end:raw[5]||""
-  };
+ return round((group.items||[])
+  .reduce((sum,a)=>{
+   const item={
+    groupId:group.id||"",
+    group:group.name||"",
+    id:a[0],name:a[1],
+    original:num(a[2]),
+    frequency:a[3]||"m",
+    start:a[4]||"",
+    end:a[5]||""
+   };
 
-  if(!vehicleAllowed(item,month))
-   return sum;
-
-  return sum+amount(item,month);
- },0));
+   return sum+(
+    vehicleAllowed(item,month)
+     ?amount(item,month):0
+   );
+  },0));
 }
 
-function renderGroupedItems(){
+function renderGrouped(){
  const root=$("groupedItems");
  root.replaceChildren();
 
@@ -1035,30 +1098,26 @@ function renderGroupedItems(){
   today().slice(0,7);
 
  for(const group of state.groups){
-  const outer=node("details",undefined,"group");
+  const outer=make("details",undefined,"group");
+  const summary=make("summary");
+  const title=make("div",undefined,"group-title");
 
-  const summary=node("summary");
-  const title=node("div",undefined,"group-title");
-
-  const left=node("span",
-   group.name||group.id||"Weitere"
+  title.append(
+   make("span",group.name||group.id||"Weitere"),
+   make("span",
+    euro(groupSum(group,month)),
+    "group-sum")
   );
 
-  const right=node("span",
-   euro(groupSum(group,month)),
-   "group-sum"
-  );
-
-  title.append(left,right);
   summary.append(title);
   outer.append(summary);
 
-  const body=node("div",undefined,"groupbody");
+  const body=make("div",undefined,"groupbody");
 
   for(const raw of group.items||[]){
    const item={
-    group:group.name,
-    groupId:group.id,
+    groupId:group.id||"",
+    group:group.name||"",
     id:raw[0],
     name:raw[1],
     original:num(raw[2]),
@@ -1068,150 +1127,125 @@ function renderGroupedItems(){
    };
 
    const s=schedule(item);
-   const wrap=node("div",undefined,"item");
-   const head=node("div",undefined,"itemhead");
-   const left=node("div");
+   const wrap=make("div",undefined,"item");
 
-   left.append(
-    node("div",item.name,"itemname"),
-    node("div",
+   wrap.append(
+    make("div",item.name,"itemname"),
+    make("div",
      euro(amount(item,month))+
-     " im Bezugsmonat · "+
-     (ROUTES.find(x=>x[0]===routeFor(item))||[])[1],
+     " · "+NAMES[routeFor(item)],
      "itemmeta")
    );
 
-   head.append(left);
+   const edit=make("details");
+   edit.append(make("summary","✎ Bearbeiten"));
 
-   const edit=node("details");
-   edit.append(node("summary","✎ Bearbeiten"));
-
-   const grid=node("div",undefined,"editgrid");
+   const grid=make("div",undefined,"editgrid");
 
    grid.append(
-    field(
-     "Grundbetrag (€)",
+    field("Grundbetrag (€)",
      state.values[item.id]??item.original,
      v=>{
       state.values[item.id]=num(v);
-      renderGroupedItems();
-     },
-     "number"
-    ),
+      renderGrouped();
+     },"number"),
 
-    selectField(
-     "Zahlungskonto",
-     routeFor(item),
-     ROUTES,
+    selectField("Zahlungskonto",
+     routeFor(item),ROUTES,
      v=>{
       state.routes[item.id]=v;
-      renderGroupedItems();
-     }
-    ),
+      renderGrouped();
+     }),
 
-    selectField(
-     "Zahlungsrhythmus",
-     s.frequency,
-     FREQUENCIES,
+    selectField("Rhythmus",
+     s.frequency,FREQUENCIES,
      v=>{
       state.schedules[item.id]={
-       ...schedule(item),
-       frequency:v
+       ...schedule(item),frequency:v
       };
-     }
-    ),
+     }),
 
-    field(
-     "Erste Zahlung",
-     s.start,
+    field("Erste Zahlung",s.start,
      v=>{
       state.schedules[item.id]={
-       ...schedule(item),
-       start:v
+       ...schedule(item),start:v
       };
-     },
-     "month"
-    ),
+     },"month"),
 
-    field(
-     "Letzte Zahlung",
+    field("Letzte Zahlung",
      s.end==="9999-12"?"":s.end,
      v=>{
       state.schedules[item.id]={
        ...schedule(item),
        end:v||"9999-12"
       };
-     },
-     "month"
-    ),
+     },"month"),
 
-    field(
-     "Zahlungstag",
+    field("Zahlungstag",
      state.dueDays[item.id]||15,
      v=>{
       state.dueDays[item.id]=Math.max(
        1,Math.min(31,Number(v)||15)
       );
-     },
-     "number"
-    )
+     },"number")
    );
 
    edit.append(grid);
-
-   edit.append(node("h4",
+   edit.append(make("h4",
     "Zukünftige Betragsänderungen"
    ));
 
-   const changes=node("div");
-   const list=state.overrides[item.id]||[];
+   const changes=changesFor(item.id);
 
-   list.forEach((c,index)=>{
-    const row=node("div",undefined,"change");
+   changes.forEach((c,index)=>{
+    const row=make("div",undefined,"change");
 
     row.append(
      field("Ab Monat",c.from,
-      v=>c.from=v,"month"),
+      v=>{
+       c.from=v;
+       state.overrides[item.id]=changes;
+      },"month"),
 
      field("Neuer Betrag (€)",c.amount,
-      v=>c.amount=num(v),"number")
+      v=>{
+       c.amount=num(v);
+       state.overrides[item.id]=changes;
+      },"number")
     );
 
-    const remove=node("button",
-     "Entfernen","danger mini"
-    );
+    const remove=make("button",
+     "Entfernen","danger mini");
 
     remove.onclick=()=>{
-     list.splice(index,1);
-     state.overrides[item.id]=list;
+     changes.splice(index,1);
+     state.overrides[item.id]=changes;
      save();
-     renderGroupedItems();
+     renderGrouped();
     };
 
     row.append(remove);
-    changes.append(row);
+    edit.append(row);
    });
 
-   edit.append(changes);
-
-   const add=node("button",
-    "+ Betragsänderung","secondary mini"
-   );
+   const add=make("button",
+    "+ Betragsänderung","secondary mini");
 
    add.onclick=()=>{
-    state.overrides[item.id]||=[];
-    state.overrides[item.id].push({
+    changes.push({
      from:month,
      amount:num(
       state.values[item.id]??item.original
      )
     });
+
+    state.overrides[item.id]=changes;
     save();
-    renderGroupedItems();
+    renderGrouped();
    };
 
    edit.append(add);
-   wrap.append(head,edit);
+   wrap.append(edit);
    body.append(wrap);
   }
 
@@ -1220,11 +1254,9 @@ function renderGroupedItems(){
  }
 
  if(!state.groups.length){
-  root.append(node("div",
-   "Noch keine Positionen vorhanden. "+
-   "Bitte deine JSON-Sicherung importieren.",
-   "notice"
-  ));
+  showMessage(root,
+   "Keine Gruppen vorhanden. Bitte JSON-Sicherung importieren."
+  );
  }
 }
 
@@ -1240,38 +1272,32 @@ $("collapseAll").onclick=()=>{
  ).forEach(d=>d.open=false);
 };
 
-$("groupMonth").onchange=renderGroupedItems;
+$("groupMonth").onchange=renderGrouped;
 
-/* =========================================
+/* ========================================
    SONDERAUSGABEN
-   ========================================= */
+======================================== */
 
 function renderSpecials(){
  const root=$("specialList");
  root.replaceChildren();
 
  state.specialExpenses.forEach((s,index)=>{
-  const wrap=node("div",undefined,"item");
+  const wrap=make("div",undefined,"item");
 
-  const head=node("div",undefined,"special-head");
-  const left=node("div");
-
-  left.append(
-   node("div",s.name||"Sonderausgabe","itemname"),
-   node("div",
+  wrap.append(
+   make("div",s.name||"Sonderausgabe","itemname"),
+   make("div",
     euro(s.amount)+" · "+
     pad(s.month||7)+"/"+s.year+
     (s.recurring?" · jährlich":""),
     "itemmeta")
   );
 
-  head.append(left);
-  wrap.append(head);
+  const edit=make("details");
+  edit.append(make("summary","✎ Bearbeiten"));
 
-  const edit=node("details");
-  edit.append(node("summary","✎ Bearbeiten"));
-
-  const grid=node("div",undefined,"editgrid");
+  const grid=make("div",undefined,"editgrid");
 
   grid.append(
    field("Bezeichnung",s.name,
@@ -1293,41 +1319,33 @@ function renderSpecials(){
      1,Math.min(31,Number(v)||1)
     ),"number"),
 
-   field("Kategorie",s.category||"",
-    v=>s.category=v),
-
-   selectField(
-    "Zahlungskonto",
+   selectField("Zahlungskonto",
     s.account==="salary"?"gls00":
     s.account==="second"?"sparkasse":
     s.account||"gls00",
     ROUTES,
-    v=>s.account=v
-   )
+    v=>s.account=v)
   );
 
   edit.append(grid);
 
-  const recurring=node("label");
-  const checkbox=node("input");
-  checkbox.type="checkbox";
-  checkbox.checked=!!s.recurring;
+  const label=make("label");
+  const check=make("input");
+  check.type="checkbox";
+  check.checked=!!s.recurring;
 
-  checkbox.onchange=()=>{
-   s.recurring=checkbox.checked;
+  check.onchange=()=>{
+   s.recurring=check.checked;
    save();
   };
 
-  recurring.append(
-   checkbox,
-   document.createTextNode(" Jährlich wiederholen")
-  );
+  label.append(check,
+   document.createTextNode(" Jährlich wiederholen"));
 
-  edit.append(recurring);
+  edit.append(label);
 
-  const remove=node("button",
-   "Sonderausgabe löschen","danger mini"
-  );
+  const remove=make("button",
+   "Sonderausgabe löschen","danger mini");
 
   remove.onclick=()=>{
    if(!confirm("Sonderausgabe löschen?"))return;
@@ -1340,23 +1358,14 @@ function renderSpecials(){
   wrap.append(edit);
   root.append(wrap);
  });
-
- if(!state.specialExpenses.length){
-  root.append(node("p",
-   "Noch keine Sonderausgaben erfasst.",
-   "muted"
-  ));
- }
 }
 
 $("addSpecial").onclick=()=>{
  state.specialExpenses.push({
   name:"Neue Sonderausgabe",
-  year:Number(today().slice(0,4)),
-  month:7,
-  day:1,
   amount:0,
-  category:"Sonstiges",
+  year:Number(today().slice(0,4)),
+  month:7,day:1,
   account:"gls00",
   recurring:false
  });
@@ -1364,9 +1373,9 @@ $("addSpecial").onclick=()=>{
  renderSpecials();
 };
 
-/* =========================================
+/* ========================================
    PLANUNG
-   ========================================= */
+======================================== */
 
 function renderPlanning(){
  renderSpecials();
@@ -1393,69 +1402,25 @@ function renderPlanning(){
 
  const b=budget(month);
 
- $("planningSummary").innerHTML=
-  "<p><strong>Einnahmen:</strong> "+
-  euro(b.income)+
-  "<br><strong>Ausgaben:</strong> "+
-  euro(b.expenses)+
-  "<br><strong>Monatssaldo:</strong> "+
-  euro(b.net)+"</p>";
+ $("planningSummary").textContent=
+  "Einnahmen "+euro(b.income)+
+  " · Ausgaben "+euro(b.expenses)+
+  " · Saldo "+euro(b.net);
 
- const specials=specialForMonth(month);
  const root=$("planningSpecialSummary");
-
  root.replaceChildren();
- root.append(node("h4",
+ root.append(make("h4",
   "Sonderausgaben im Bezugsmonat"
  ));
 
- if(!specials.length)
-  root.append(node("p",
-   "Keine Sonderausgaben.","muted"
-  ));
-
- for(const s of specials){
-  const row=node("div",undefined,"row");
+ for(const s of specialForMonth(month)){
+  const row=make("div",undefined,"row");
   row.append(
-   node("span",s.name),
-   node("strong",euro(s.amount))
+   make("span",s.name),
+   make("strong",euro(s.amount))
   );
   root.append(row);
  }
-
- renderCarComparison();
-}
-
-function renderCarComparison(){
- const v=state.vehicle;
- const month=$("budgetMonth").value||
-  today().slice(0,7);
-
- const old=allItems()
-  .filter(i=>["skg","carins"].includes(i.id))
-  .reduce((sum,i)=>{
-   const freq=schedule(i).frequency;
-   const divisor={
-    m:1,q:3,h:6,y:12
-   }[freq]||1;
-
-   return sum+
-    num(state.values[i.id]??i.original)/divisor;
-  },0);
-
- const replacement=
-  num(v.replacementLoan)+
-  num(v.replacementOther);
-
- const newCost=
-  v.scenario==="keep"?old:
-  v.scenario==="rental"
-   ?num(v.rental):replacement;
-
- $("carComparison").textContent=
-  "Geschätzte monatliche Einsparung "+
-  "gegenüber EQA behalten: "+
-  euro(old-newCost)+".";
 }
 
 $("saveVacation").onclick=()=>{
@@ -1474,12 +1439,8 @@ $("saveCar").onclick=()=>{
   switchMonth:$("carSwitch").value,
   saleNet:num($("carSaleNet").value),
   rental:num($("carRental").value),
-  replacementLoan:num(
-   $("carReplacementLoan").value
-  ),
-  replacementOther:num(
-   $("carReplacementOther").value
-  )
+  replacementLoan:num($("carReplacementLoan").value),
+  replacementOther:num($("carReplacementOther").value)
  };
  save();
  renderPlanning();
@@ -1497,26 +1458,26 @@ $("saveBonus").onclick=()=>{
 
 $("budgetMonth").onchange=renderPlanning;
 
-/* =========================================
+/* ========================================
    KONTEN
-   ========================================= */
+======================================== */
 
 function balancesKnown(){
- return Object.values(state.accounts).every(a=>
-  a.balance!==null&&
-  Number.isFinite(Number(a.balance))&&
-  !!a.date
- );
+ return BANKS.every(id=>{
+  const a=state.accounts[id];
+  return a&&a.balance!==null&&!!a.date;
+ });
 }
 
 function bankTotal(){
- return Object.values(state.accounts)
-  .reduce((s,a)=>s+num(a.balance),0);
+ return BANKS.reduce((s,id)=>
+  s+num(state.accounts[id].balance),0
+ );
 }
 
 function cardsDebt(){
- return state.cards.reduce(
-  (s,c)=>s+num(c.open),0
+ return state.cards.reduce((s,c)=>
+  s+num(c.open),0
  );
 }
 
@@ -1524,50 +1485,44 @@ function renderAccounts(){
  const root=$("accountCards");
  root.replaceChildren();
 
- for(const id of [
-  "gls00","gls01","gls02","sparkasse"
- ]){
+ for(const id of BANKS){
   const a=state.accounts[id];
-  const c=node("div",undefined,"card");
+  const c=make("div",undefined,"card");
 
   c.append(
-   node("h3",NAMES[id]),
-   node("div",
+   make("h3",NAMES[id]),
+   make("div",
     a.balance===null
-     ?"Noch nicht erfasst":euro(a.balance),
+     ?"Noch nicht erfasst"
+     :euro(a.balance),
     "metric "+(
      num(a.balance)<0?"negative":"positive"
     )
    ),
-   node("p",
+   make("p",
     a.date?"Stand: "+a.date:
-    "Kein Stichtag erfasst",
-    "muted"
-   )
+    "Kein Stichtag","muted")
   );
 
-  const d=node("details");
-  d.append(node("summary",
-   "✎ Kontostand bearbeiten"
-  ));
+  const edit=make("details");
+  edit.append(make("summary","✎ Bearbeiten"));
 
-  d.append(field(
+  edit.append(field(
    "Kontostand (€)",
-   a.balance===null?"":a.balance,
+   a.balance??"",
    v=>{
-    const x=parseMoney(v);
-    if(x===null){
-     alert("Ungültiger Kontostand.");
+    const n=money(v);
+    if(n===null){
+     alert("Ungültiger Betrag.");
      return;
     }
-    a.balance=x;
+    a.balance=n;
     a.date=today();
     renderAccounts();
-   },
-   "number"
+   },"number"
   ));
 
-  c.append(d);
+  c.append(edit);
   root.append(c);
  }
 
@@ -1579,70 +1534,74 @@ function renderCards(){
  root.replaceChildren();
 
  state.cards.forEach(c=>{
-  const d=node("details");
+  const edit=make("details");
 
-  d.append(node("summary",
-   c.name+" · offen "+euro(c.open)
+  edit.append(make("summary",
+   "✎ "+c.name+" · offen "+euro(c.open)
   ));
 
-  d.append(
+  edit.append(
    field("Name",c.name,v=>c.name=v),
-   field("Offener Gesamtbetrag (€)",c.open,
+
+   field("Offener Betrag (€)",c.open,
     v=>c.open=num(v),"number"),
+
    field("Nächster Einzug (€)",c.bill,
     v=>c.bill=num(v),"number"),
+
    field("Einzugsdatum",c.billDate,
     v=>c.billDate=v,"date"),
+
    field("Rest-Einzugsdatum",c.restDate,
     v=>c.restDate=v,"date")
   );
 
-  root.append(d);
+  root.append(edit);
  });
 }
 
-/* =========================================
-   LIQUIDITÄTSEREIGNISSE
-   ========================================= */
+/* ========================================
+   ZAHLUNGSEREIGNISSE
+======================================== */
 
-function forecastEvents(from,to){
+function regularEvents(from,to){
  const events=[];
 
- function add(date,account,value,label,extra={}){
+ function add(date,account,value,label,kind="regular"){
   if(date>=from&&date<=to&&value){
    events.push({
-    date,
-    account,
-    value:round(value),
-    label,
-    ...extra
+    date,account,value:round(value),
+    label,kind
    });
   }
  }
 
  let month=from.slice(0,7);
- const end=to.slice(0,7);
+ const last=to.slice(0,7);
  let guard=0;
 
- while(month<=end&&guard++<600){
-  const transfer=businessDay(
+ while(month<=last&&guard++<600){
+  const transfer=bankingDay(
    dateInMonth(month,1)
   );
 
   add(transfer,"gls00",-1600,
-   "Dauerauftrag → Sparkasse");
-
+   "Transfer an Sparkasse","transfer");
   add(transfer,"sparkasse",1600,
-   "Dauerauftrag ← GLS · 00");
+   "Transfer von GLS · 00","transfer");
 
   add(transfer,"gls00",-300,
-   "Dauerauftrag → GLS · 02");
-
+   "Transfer an GLS · 02","transfer");
   add(transfer,"gls02",300,
-   "Dauerauftrag ← GLS · 00");
+   "Transfer von GLS · 00","transfer");
 
   for(const item of allItems()){
    if(!vehicleAllowed(item,month))
+    continue;
+
+   // Die Darlehensrate wird in der
+   // zentralen Simulation separat gebucht.
+   if(isMortgageItem(item))
     continue;
 
    const value=amount(item,month);
@@ -1650,22 +1609,25 @@ function forecastEvents(from,to){
 
    const account=routeFor(item);
 
-   // Eine geplante Rücklagenbildung ist
-   // nicht automatisch eine Barausgabe.
+   // Rücklagenpositionen werden durch
+   // den Transfer nach GLS 02 finanziert.
+   // Kein zweiter Abfluss bei Ansparung.
    if(account==="gls02"&&
     RESERVES.has(item.id))
     continue;
 
-   const day=
-    Number(state.dueDays[item.id])||
-    (income(item)
+   const day=Number(
+    state.dueDays[item.id]
+   )||(
+    isIncome(item)
      ?state.settings.salaryDay
-     :state.settings.defaultDay);
+     :state.settings.defaultDay
+   );
 
    add(
-    businessDay(dateInMonth(month,day)),
+    bankingDay(dateInMonth(month,day)),
     account,
-    income(item)?value:-value,
+    isIncome(item)?value:-value,
     item.name
    );
   }
@@ -1674,31 +1636,27 @@ function forecastEvents(from,to){
 
   if(extra){
    add(
-    businessDay(dateInMonth(month,15)),
-    "gls00",
-    -extra,
-    "Ersatzwagenkosten"
+    bankingDay(dateInMonth(month,15)),
+    "gls00",-extra,"Ersatzwagenkosten"
    );
   }
 
   if(state.vehicle.scenario!=="keep"&&
    state.vehicle.switchMonth===month){
    add(
-    businessDay(dateInMonth(month,1)),
-    "gls00",
-    num(state.vehicle.saleNet),
-    "Autoverkauf abzüglich Ablösung"
+    bankingDay(dateInMonth(month,1)),
+    "gls00",num(state.vehicle.saleNet),
+    "Autoverkauf netto"
    );
   }
 
   if(state.bonus.enabled&&
    state.bonus.month===month){
    add(
-    businessDay(dateInMonth(
+    bankingDay(dateInMonth(
      month,state.settings.salaryDay
     )),
-    "gls00",
-    num(state.bonus.amount),
+    "gls00",num(state.bonus.amount),
     "Bonus"
    );
   }
@@ -1710,10 +1668,13 @@ function forecastEvents(from,to){
     s.account||"gls00";
 
    add(
-    businessDay(dateInMonth(month,s.day||1)),
+    bankingDay(dateInMonth(
+     month,s.day||1
+    )),
     account,
     -num(s.amount),
-    "Sonderausgabe: "+s.name
+    "Sonderausgabe: "+s.name,
+    "special"
    );
   }
 
@@ -1721,43 +1682,43 @@ function forecastEvents(from,to){
    if(c.month!==month)continue;
 
    add(
-    businessDay(dateInMonth(
+    bankingDay(dateInMonth(
      month,c.day||15
     )),
-    "gls00",
+    c.account||"gls00",
     -num(c.amount),
-    c.name||"Zusatzkosten"
+    c.name||"Zusatzkosten",
+    "special"
    );
   }
 
-  month=monthAdd(month,1);
+  month=addMonths(month,1);
  }
 
  state.cards.forEach((c,i)=>{
   const bill=Math.min(
    num(c.bill),num(c.open)
   );
+
   const rest=Math.max(
    0,num(c.open)-bill
   );
 
   if(c.billDate){
    add(
-    businessDay(c.billDate),
-    "gls00",
-    -bill,
+    bankingDay(c.billDate),
+    "gls00",-bill,
     c.name+" – Einzug",
-    {cardPayment:i,reduction:bill}
+    "cardpayment"+i
    );
   }
 
   if(c.restDate){
    add(
-    businessDay(c.restDate),
-    "gls00",
-    -rest,
+    bankingDay(c.restDate),
+    "gls00",-rest,
     c.name+" – Resteinzug",
-    {cardPayment:i,reduction:rest}
+    "cardpayment"+i
    );
   }
  });
@@ -1770,210 +1731,501 @@ function forecastEvents(from,to){
  return events;
 }
 
-/*
- Die folgende Funktion verwendet Kontostände
- nur dann für automatische Sondertilgungen,
- wenn sie einen gemeinsamen Stichtag besitzen.
+/* ========================================
+   ZENTRALE LIQUIDITÄTS- UND
+   DARLEHENSSIMULATION
+======================================== */
 
- Bei unterschiedlichen Stichtagen ist eine
- sichere gemeinsame Liquiditätsbasis nicht
- ohne zusätzliche Abstimmung möglich.
+/*
+ Konten werden von ihrem eigenen Stichtag
+ bis zu einem gemeinsamen Simulationsbeginn
+ fortgeschrieben.
+
+ Es wird NICHT unterstellt, dass alle
+ Kontostände am selben Tag gelten.
+
+ Die automatische Sondertilgung wird
+ in dieselbe Ereignisliste geschrieben,
+ die für die Kontenprognose verwendet wird.
+
+ Die Mindestreserve ist eine Untergrenze,
+ keine Zielgröße, die ausgegeben werden muss.
 */
 
-function commonAnchor(){
+function latestAccountDate(){
  if(!balancesKnown())return null;
 
- const dates=Object.values(state.accounts)
-  .map(a=>a.date);
-
- return dates.every(d=>d===dates[0])
-  ?dates[0]:null;
+ return BANKS.map(id=>
+  state.accounts[id].date
+ ).sort().at(-1);
 }
 
-function openingSnapshot(){
- const balances={};
+function initialBalances(){
+ const result={};
 
- for(const [id,a] of Object.entries(
-  state.accounts
- )){
-  balances[id]=num(a.balance);
+ for(const id of BANKS){
+  result[id]=num(
+   state.accounts[id].balance
+  );
  }
 
- return {
-  balances,
-  cards:state.cards.map(c=>num(c.open))
- };
+ return result;
 }
 
-function applyEvent(snapshot,e){
+function sumBank(balances){
+ return BANKS.reduce((s,id)=>
+  s+num(balances[id]),0
+ );
+}
+
+function initialCards(){
+ return state.cards.map(c=>num(c.open));
+}
+
+function eventEffect(balances,cards,e){
  if(e.account==="card1"||
   e.account==="card2"){
   const i=e.account==="card1"?0:1;
-
-  snapshot.cards[i]=round(
-   snapshot.cards[i]-e.value
+  cards[i]=Math.max(
+   0,round(cards[i]-e.value)
   );
- }else{
-  snapshot.balances[e.account]=round(
-   (snapshot.balances[e.account]||0)+
-   e.value
+ }else if(BANKS.includes(e.account)){
+  balances[e.account]=round(
+   balances[e.account]+e.value
   );
  }
 
- if(e.cardPayment!==undefined){
-  snapshot.cards[e.cardPayment]=Math.max(
-   0,
-   round(
-    snapshot.cards[e.cardPayment]-
-    e.reduction
-   )
+ if(e.kind.startsWith("cardpayment")){
+  const i=Number(e.kind.slice(-1));
+  cards[i]=Math.max(
+   0,round(cards[i]+e.value)
   );
  }
 }
 
-function snapshotTotal(snapshot){
- const bank=Object.values(
-  snapshot.balances
- ).reduce((s,n)=>s+n,0);
-
- const debt=snapshot.cards
-  .reduce((s,n)=>s+n,0);
-
- return {
-  bank:round(bank),
-  debt:round(debt),
-  net:round(bank-debt)
- };
-}
-
-function table(headers,rows){
- const t=node("table");
- const head=node("tr");
-
- headers.forEach(h=>
-  head.append(node("th",h))
+function totalNet(balances,cards){
+ return round(
+  sumBank(balances)-
+  cards.reduce((s,x)=>s+x,0)
  );
-
- t.append(head);
-
- for(const values of rows){
-  const tr=node("tr");
-
-  values.forEach(v=>
-   tr.append(node("td",String(v)))
-  );
-
-  t.append(tr);
- }
-
- return t;
 }
 
-function calculateForecast(){
- const from=$("forecastFrom").value;
- const to=$("forecastTo").value;
+function alignAccounts(start,events){
+ const balances=initialBalances();
 
- const warnings=$("forecastWarnings");
- const summary=$("forecastSummary");
- const daily=$("forecastDaily");
- const eventsRoot=$("forecastEvents");
+ for(const id of BANKS){
+  const anchor=state.accounts[id].date;
 
- warnings.replaceChildren();
- summary.replaceChildren();
- daily.replaceChildren();
- eventsRoot.replaceChildren();
+  for(const e of events){
+   if(e.date<=anchor||e.date>start)
+    continue;
 
- if(!from||!to||to<from){
-  warnings.append(node("div",
-   "Bitte einen gültigen Zeitraum wählen.",
-   "notice"
-  ));
-  return;
- }
-
- if(!balancesKnown()){
-  warnings.append(node("div",
-   "Bitte alle vier Kontostände erfassen.",
-   "notice"
-  ));
-  return;
- }
-
- const days=Math.round((
-  new Date(to+"T12:00:00")-
-  new Date(from+"T12:00:00")
- )/86400000);
-
- if(days>3660){
-  warnings.append(node("div",
-   "Die Tagesprognose ist auf zehn Jahre begrenzt.",
-   "notice"
-  ));
-  return;
- }
-
- const anchor=commonAnchor();
-
- if(!anchor||anchor!==from){
-  warnings.append(node("div",
-   "Die Kontostände sind nicht vollständig "+
-   "auf den Prognosebeginn abgestimmt. "+
-   "Die Darstellung verwendet sie "+
-   "vereinfachend als Startwerte.",
-   "notice"
-  ));
- }
-
- const snapshot=openingSnapshot();
- const events=forecastEvents(
-  addDays(from,1),to
- );
-
- const minimum={...snapshot.balances};
- const rows=[];
- let pointer=0;
- let day=from;
-
- while(day<=to){
-  while(pointer<events.length&&
-   events[pointer].date===day){
-   const e=events[pointer++];
-   applyEvent(snapshot,e);
-
-   for(const id of Object.keys(
-    snapshot.balances
-   )){
-    minimum[id]=Math.min(
-     minimum[id],
-     snapshot.balances[id]
+   if(e.account===id){
+    balances[id]=round(
+     balances[id]+e.value
     );
    }
   }
+ }
 
-  const totals=snapshotTotal(snapshot);
+ return balances;
+}
 
-  rows.push({
-   day,
-   ...snapshot.balances,
-   ...totals
+function mortgageReady(){
+ const m=state.mortgage;
+
+ return m.balance!==null&&
+  !!m.asOf&&
+  m.payment!==null&&
+  num(m.payment)>0&&
+  !!m.fixedEnd;
+}
+
+function simulate(until){
+ const warnings=[];
+ const annual=[];
+ const eventsOut=[];
+ const daily=[];
+
+ if(!balancesKnown()){
+  return {
+   ok:false,
+   reason:"Bitte alle vier Kontostände "+
+    "mit Stichtag erfassen."
+  };
+ }
+
+ const start=latestAccountDate();
+ if(until<start){
+  return {
+   ok:false,
+   reason:"Der Prognosezeitraum liegt vor "+
+    "dem jüngsten Kontostichtag."
+  };
+ }
+
+ const mortgage=state.mortgage;
+
+ if(!mortgageReady()){
+  warnings.push(
+   "Darlehensdaten unvollständig. "+
+   "Keine automatische Sondertilgung."
+  );
+ }
+
+ /*
+  Buchungen werden auch vor dem
+  gemeinsamen Start benötigt, um
+  die Konten auf denselben
+  Auswertungsstichtag zu bringen.
+ */
+
+ const earliest=BANKS.map(id=>
+  state.accounts[id].date
+ ).sort()[0];
+
+ const events=regularEvents(
+  addDays(earliest,1),until
+ );
+
+ const balances=alignAccounts(start,events);
+ const cards=initialCards();
+
+ /*
+  Für die Zukunft werden nur Buchungen
+  NACH dem gemeinsamen Start verarbeitet.
+ */
+
+ let pointer=0;
+ while(pointer<events.length&&
+  events[pointer].date<=start)
+  pointer++;
+
+ /*
+  Die Restschuld gilt zum Ende
+  des eingegebenen Monats.
+
+  Wenn der Kontostichtag später liegt,
+  wird das Darlehen bis zum gemeinsamen
+  Start mit regulären Raten
+  fortgeschrieben.
+
+  Diese historischen Raten werden nicht
+  nochmals von den aktuellen Kontoständen
+  abgezogen.
+ */
+
+ let principal=mortgageReady()
+  ?num(mortgage.balance):null;
+
+ let mortgageMonth=mortgageReady()
+  ?addMonths(mortgage.asOf,1):null;
+
+ let totalInterest=0;
+
+ function applyMortgageMonth(month,bookCash){
+  if(principal===null||principal<=0)
+   return;
+
+  const rate=month<=mortgage.fixedEnd.slice(0,7)
+   ?num(mortgage.rate)
+   :num(mortgage.followRate);
+
+  const interest=principal*rate/1200;
+  const payment=Math.min(
+   principal+interest,
+   num(mortgage.payment)
+  );
+
+  principal=Math.max(
+   0,round(principal+interest-payment)
+  );
+
+  totalInterest+=interest;
+
+  if(bookCash&&payment>0){
+   const e={
+    date:bankingDay(dateInMonth(month,15)),
+    account:"gls00",
+    value:-round(payment),
+    label:"Reguläre Immobiliendarlehensrate",
+    kind:"mortgage"
+   };
+
+   eventEffect(balances,cards,e);
+   eventsOut.push(e);
+  }
+ }
+
+ /*
+  Darlehensmonate vor dem gemeinsamen
+  Start werden nur für die Restschuld
+  fortgeschrieben.
+ */
+
+ if(mortgageReady()){
+  while(mortgageMonth<start.slice(0,7)){
+   applyMortgageMonth(mortgageMonth,false);
+   mortgageMonth=addMonths(mortgageMonth,1);
+  }
+ }
+
+ let day=addDays(start,1);
+ const last=until;
+ let currentMonth="";
+ let monthMortgageBooked=false;
+
+ function book(e){
+  eventEffect(balances,cards,e);
+  eventsOut.push(e);
+ }
+
+ while(day<=last){
+  const month=day.slice(0,7);
+
+  if(month!==currentMonth){
+   currentMonth=month;
+   monthMortgageBooked=false;
+  }
+
+  /*
+   Sämtliche normalen Buchungen des
+   Tages werden zuerst verarbeitet.
+  */
+
+  while(pointer<events.length&&
+   events[pointer].date===day){
+   book(events[pointer]);
+   pointer++;
+  }
+
+  /*
+   Darlehensrate am 15. Bankarbeitstag
+   des Monats, sofern der Monat noch
+   nicht durch den Startstichtag
+   abgeschlossen ist.
+  */
+
+  if(mortgageReady()&&
+   mortgageMonth===month&&
+   !monthMortgageBooked){
+
+   const paymentDate=bankingDay(
+    dateInMonth(month,15)
+   );
+
+   if(day>=paymentDate){
+    applyMortgageMonth(month,true);
+    mortgageMonth=addMonths(
+     mortgageMonth,1
+    );
+    monthMortgageBooked=true;
+   }
+  }
+
+  /*
+   Sondertilgung zum 31. Juli.
+   Erst nach allen sonstigen
+   bis dahin erfassten Buchungen.
+
+   Schutz:
+   - GLS 02 nicht für Tilgung nutzen
+   - Kreditkartenschulden berücksichtigen
+   - Mindestreserve schützen
+   - tatsächliche Deckung auf GLS 00
+  */
+
+  if(day.endsWith("-07-31")&&
+   principal!==null){
+
+   const fixedEnd=mortgage.fixedEnd;
+   const isExpiry=day===fixedEnd;
+
+   const bank=sumBank(balances);
+   const debt=cards.reduce(
+    (s,x)=>s+x,0
+   );
+
+   const earmarked=Math.max(
+    0,balances.gls02
+   );
+
+   const freeOverall=Math.max(
+    0,
+    round(
+     bank-debt-earmarked-
+     num(mortgage.reserve)
+    )
+   );
+
+   const availableOnSalary=Math.max(
+    0,balances.gls00
+   );
+
+   const available=Math.min(
+    freeOverall,
+    availableOnSalary
+   );
+
+   const cap=
+    day<fixedEnd
+     ?num(mortgage.cap)
+     :isExpiry
+      ?Infinity
+      :0;
+
+   const special=round(
+    Math.max(0,Math.min(
+     principal,available,cap
+    ))
+   );
+
+   if(special>0){
+    principal=round(
+     principal-special
+    );
+
+    book({
+     date:day,
+     account:"gls00",
+     value:-special,
+     label:isExpiry
+      ?"Ablösung / Sondertilgung Immobilie"
+      :"Automatische Sondertilgung Immobilie",
+     kind:"specialRepayment"
+    });
+   }
+
+   annual.push({
+    date:day,
+    available:round(available),
+    special,
+    balance:round(principal),
+    cashAfter:round(
+     sumBank(balances)
+    )
+   });
+  }
+
+  const bank=sumBank(balances);
+  const debt=cards.reduce(
+   (s,x)=>s+x,0
+  );
+
+  daily.push({
+   date:day,
+   ...balances,
+   bank:round(bank),
+   debt:round(debt),
+   net:round(bank-debt)
   });
 
   day=addDays(day,1);
  }
 
- const last=rows[rows.length-1];
- const grid=node("div",undefined,"grid");
+ /*
+  Ereignisse vor dem gemeinsamen
+  Start dürfen nicht als zukünftige
+  Buchungen ausgegeben werden.
+ */
 
- for(const [name,value] of [
-  ["Bankguthaben am Ende",last.bank],
+ eventsOut.sort((a,b)=>
+  a.date.localeCompare(b.date)||
+  a.label.localeCompare(b.label)
+ );
+
+ if(state.cards.some(c=>
+  !c.billDate&&num(c.open)>0
+ )){
+  warnings.push(
+   "Mindestens eine Kreditkarte hat "+
+   "offene Schulden ohne Einzugsdatum. "+
+   "Diese Schulden bleiben in der "+
+   "Netto-Liquidität berücksichtigt."
+  );
+ }
+
+ if(state.accounts.gls02.balance!==null){
+  warnings.push(
+   "GLS · 02 wird als zweckgebundene "+
+   "Rücklage behandelt und nicht "+
+   "für Sondertilgungen freigegeben."
+  );
+ }
+
+ return {
+  ok:true,
+  start,
+  balances,
+  cards,
+  annual,
+  daily,
+  events:eventsOut,
+  principal,
+  totalInterest:round(totalInterest),
+  warnings
+ };
+}
+
+/* ========================================
+   LIQUIDITÄTSANSICHT
+======================================== */
+
+function renderForecast(){
+ const from=$("forecastFrom").value;
+ const to=$("forecastTo").value;
+
+ const warnings=$("forecastWarnings");
+ const summary=$("forecastSummary");
+ const dailyRoot=$("forecastDaily");
+ const eventsRoot=$("forecastEvents");
+
+ warnings.replaceChildren();
+ summary.replaceChildren();
+ dailyRoot.replaceChildren();
+ eventsRoot.replaceChildren();
+
+ if(!from||!to||to<from){
+  showMessage(warnings,
+   "Bitte gültigen Zeitraum wählen.");
+  return;
+ }
+
+ const sim=simulate(to);
+
+ if(!sim.ok){
+  showMessage(warnings,sim.reason);
+  return;
+ }
+
+ for(const w of sim.warnings)
+  showMessage(warnings,w);
+
+ const rows=sim.daily.filter(r=>
+  r.date>=from&&r.date<=to
+ );
+
+ if(!rows.length){
+  showMessage(warnings,
+   "Für den gewählten Zeitraum "+
+   "liegen keine Prognosetage vor.");
+  return;
+ }
+
+ const last=rows.at(-1);
+
+ const grid=make("div",undefined,"grid");
+
+ for(const [label,value] of [
+  ["Bankguthaben",last.bank],
   ["Kreditkartenschulden",last.debt],
   ["Netto-Liquidität",last.net]
  ]){
-  const c=node("div",undefined,"card");
+  const c=make("div",undefined,"card");
 
   c.append(
-   node("div",name,"muted"),
-   node("div",euro(value),"metric")
+   make("div",label,"muted"),
+   make("div",euro(value),"metric")
   );
 
   grid.append(c);
@@ -1981,16 +2233,21 @@ function calculateForecast(){
 
  summary.append(grid);
 
- const lows=node("div",undefined,"card");
- lows.append(node("h3","Niedrigste Kontostände"));
+ const lows=make("div",undefined,"card");
+ lows.append(make("h3",
+  "Niedrigste Kontostände"
+ ));
 
- for(const [id,value] of Object.entries(minimum)){
-  const row=node("div",undefined,"row");
+ for(const id of BANKS){
+  const low=Math.min(
+   ...rows.map(r=>r[id])
+  );
 
+  const row=make("div",undefined,"row");
   row.append(
-   node("span",NAMES[id]),
-   node("strong",euro(value),
-    value<0?"negative":"positive")
+   make("span",NAMES[id]),
+   make("strong",euro(low),
+    low<0?"negative":"positive")
   );
 
   lows.append(row);
@@ -1998,13 +2255,13 @@ function calculateForecast(){
 
  summary.append(lows);
 
- daily.append(table(
+ dailyRoot.append(htmlTable(
   [
    "Datum","GLS 00","GLS 01",
    "GLS 02","Sparkasse","Netto"
   ],
   rows.map(r=>[
-   r.day,
+   r.date,
    euro(r.gls00),
    euro(r.gls01),
    euro(r.gls02),
@@ -2013,43 +2270,24 @@ function calculateForecast(){
   ])
  ));
 
- eventsRoot.append(table(
+ eventsRoot.append(htmlTable(
   ["Datum","Buchung","Konto","Betrag"],
-  events.map(e=>[
-   e.date,
-   e.label,
-   NAMES[e.account]||e.account,
-   euro(e.value)
-  ])
+  sim.events
+   .filter(e=>e.date>=from&&e.date<=to)
+   .map(e=>[
+    e.date,
+    e.label,
+    NAMES[e.account]||e.account,
+    euro(e.value)
+   ])
  ));
 }
 
-$("forecastButton").onclick=calculateForecast;
+$("forecastButton").onclick=renderForecast;
 
-/* =========================================
-   AUTOMATISCHE SONDER TILGUNG
-   ========================================= */
-
-/*
- Fachliche Regeln:
-
- 1. Sondertilgung im Juli.
- 2. Restschuld nach der Juli-Sondertilgung.
- 3. Vor dem Zinsbindungsende max. Jahreslimit.
- 4. Am 31.07.2044 keine Jahresobergrenze.
- 5. Mindestreserve bleibt unangetastet.
- 6. Kreditkartenschulden werden abgezogen.
- 7. Bereits geplante Darlehensraten dürfen
-    nicht ein zweites Mal abgezogen werden.
-
- Sicherheitsregel:
- Automatische Sondertilgung nur bei
- vollständig abgestimmten Kontostichtagen.
-
- Die Rechnung berücksichtigt die geplanten
- Buchungen bis zum jeweiligen Juli.
- Sie stellt keine Bankbestätigung dar.
-*/
+/* ========================================
+   IMMOBILIE & SONDER TILGUNG
+======================================== */
 
 function renderMortgageInputs(){
  const m=state.mortgage;
@@ -2067,14 +2305,10 @@ function renderMortgageInputs(){
 function readMortgageInputs(){
  const m=state.mortgage;
 
- m.balance=parseMoney(
-  $("mortBalance").value
- );
+ m.balance=money($("mortBalance").value);
  m.asOf=$("mortAsOf").value;
  m.rate=num($("mortRate").value);
- m.payment=parseMoney(
-  $("mortPayment").value
- );
+ m.payment=money($("mortPayment").value);
  m.cap=num($("mortCap").value);
  m.reserve=num($("mortReserve").value);
  m.followRate=num($("mortFollow").value);
@@ -2087,264 +2321,74 @@ $("saveMortgage").onclick=()=>{
  alert("Darlehensdaten gespeichert.");
 };
 
-function mortgageItems(){
- return allItems().filter(i=>
-  /darlehen|hypothek|baufinanz|immobilienkredit|mortgage/i
-   .test(i.id+" "+i.name)
- );
-}
-
-function mortgageRateAlreadyBudgeted(month){
- const items=mortgageItems();
-
- return items.some(i=>
-  due(i,month)&&amount(i,month)>0
- );
-}
-
-function calculateMortgage(){
+function renderMortgage(){
  readMortgageInputs();
  save();
 
- const m=state.mortgage;
  const summary=$("mortgageSummary");
  const root=$("mortgageTable");
 
  summary.replaceChildren();
  root.replaceChildren();
 
- if(m.balance===null||
-  !m.asOf||
-  m.payment===null||
-  m.payment<=0){
-  summary.append(node("div",
-   "Bitte Restschuld, Stichtag und "+
-   "Monatsrate eingeben.",
-   "notice"
-  ));
+ if(!mortgageReady()){
+  showMessage(summary,
+   "Bitte Restschuld, Stichtag, "+
+   "Monatsrate und Zinsbindung eingeben.");
   return;
  }
 
- const anchor=commonAnchor();
+ const m=state.mortgage;
+ const end=m.fixedEnd;
 
- if(!anchor){
-  summary.append(node("div",
-   "Keine sichere automatische Sondertilgung "+
-   "möglich: Die vier Kontostände müssen "+
-   "vollständig erfasst sein und denselben "+
-   "Stichtag besitzen.",
-   "notice"
-  ));
+ const sim=simulate(end);
+
+ if(!sim.ok){
+  showMessage(summary,sim.reason);
+  return;
  }
 
- if(anchor&&anchor>m.asOf+"-28"){
-  summary.append(node("div",
-   "Der gemeinsame Kontostichtag liegt nach "+
-   "dem Darlehensstichtag. Frühere "+
-   "Liquiditätsbewegungen können nicht "+
-   "zuverlässig rekonstruiert werden.",
-   "notice"
-  ));
+ for(const w of sim.warnings)
+  showMessage(summary,w);
+
+ if(sim.start>end){
+  showMessage(summary,
+   "Der jüngste Kontostichtag liegt "+
+   "nach dem Ende der Zinsbindung.");
+  return;
  }
 
- let balance=num(m.balance);
- let month=monthAdd(m.asOf,1);
+ const rows=sim.annual.filter(r=>
+  r.date<=end
+ );
 
- const fixedMonth=m.fixedEnd.slice(0,7);
- const rows=[];
- let totalInterest=0;
+ const sumSpecial=rows.reduce(
+  (s,r)=>s+r.special,0
+ );
 
- // Die Liquidität wird ab dem gemeinsamen
- // Kontostichtag vorwärts fortgeschrieben.
- const liquidity=openingSnapshot();
+ const result=make("div",undefined,"grid");
 
- const canUseLiquidity=
-  !!anchor&&anchor<=m.asOf+"-28";
-
- let events=[];
- let eventPointer=0;
-
- if(canUseLiquidity){
-  events=forecastEvents(
-   addDays(anchor,1),
-   "2060-12-31"
+ for(const [label,value] of [
+  ["Sondertilgungen gesamt",euro(sumSpecial)],
+  ["Restschuld am Ende",euro(sim.principal)],
+  ["Berechnete Zinsen",euro(sim.totalInterest)]
+ ]){
+  const c=make("div",undefined,"card");
+  c.append(
+   make("div",label,"muted"),
+   make("div",value,"metric")
   );
+  result.append(c);
  }
 
- let liquidityDate=anchor||"";
- let steps=0;
- let lastJuly=null;
+ summary.append(result);
 
- function advanceLiquidity(target){
-  if(!canUseLiquidity)return;
-
-  while(eventPointer<events.length&&
-   events[eventPointer].date<=target){
-   applyEvent(
-    liquidity,
-    events[eventPointer]
-   );
-   eventPointer++;
-  }
-
-  liquidityDate=target;
- }
-
- function availableForRepayment(){
-  if(!canUseLiquidity)return 0;
-
-  const totals=snapshotTotal(liquidity);
-
-  // GLS 02 ist für unregelmäßige
-  // Familienausgaben reserviert.
-  // Es wird daher nicht zur
-  // Sondertilgung freigegeben.
-  const earmarked=Math.max(
-   0,num(liquidity.balances.gls02)
-  );
-
-  return Math.max(
-   0,
-   round(
-    totals.net-
-    earmarked-
-    num(m.reserve)
-   )
-  );
- }
-
- /*
-  Darlehensrate:
-  Wenn sie bereits als laufende Ausgabe
-  im Finanzkompass erfasst ist, belastet
-  die Ereignisrechnung das Konto.
-
-  Andernfalls wird sie hier zusätzlich
-  als Liquiditätsabfluss berücksichtigt.
- */
-
- while(balance>0.005&&steps++<720){
-  const year=Number(month.slice(0,4));
-  const rate=month<=fixedMonth
-   ?num(m.rate)
-   :num(m.followRate);
-
-  const interest=balance*rate/1200;
-  const payment=Math.min(
-   balance+interest,
-   num(m.payment)
-  );
-
-  balance=Math.max(
-   0,
-   balance+interest-payment
-  );
-
-  totalInterest+=interest;
-
-  const monthEnd=dateInMonth(
-   month,31
-  );
-
-  if(canUseLiquidity&&monthEnd>=anchor){
-   advanceLiquidity(monthEnd);
-
-   if(!mortgageRateAlreadyBudgeted(month)){
-    liquidity.balances.gls00=round(
-     liquidity.balances.gls00-payment
-    );
-   }
-  }
-
-  if(month.endsWith("-07")){
-   const julyDate=year+"-07-31";
-
-   // Im letzten Jahr der Zinsbindung
-   // entfällt die Sondertilgungsgrenze.
-   const isFinalFixedJuly=
-    julyDate===m.fixedEnd;
-
-   const available=availableForRepayment();
-
-   const cap=isFinalFixedJuly
-    ?Infinity
-    :month<=fixedMonth
-     ?num(m.cap)
-     :0;
-
-   const special=round(
-    Math.min(
-     balance,
-     available,
-     cap
-    )
-   );
-
-   if(special>0){
-    balance=round(balance-special);
-
-    // Sondertilgung verlässt GLS 00.
-    liquidity.balances.gls00=round(
-     liquidity.balances.gls00-special
-    );
-   }
-
-   rows.push({
-    year,
-    date:julyDate,
-    available:round(available),
-    special,
-    balance:round(balance),
-    final:isFinalFixedJuly
-   });
-
-   lastJuly=julyDate;
-  }
-
-  month=monthAdd(month,1);
-
-  if(month>"2060-12")break;
- }
-
- summary.append(node("p",
-  "Berechnete Zinsen über den "+
-  "Simulationszeitraum: "+
-  euro(totalInterest)
- ));
-
- if(!canUseLiquidity){
-  summary.append(node("div",
-   "Die jährlichen Sondertilgungen "+
-   "werden mit 0 € ausgewiesen, "+
-   "solange keine verlässliche "+
-   "Liquiditätsbasis vorliegt. "+
-   "Die Restschuld wird dann "+
-   "ohne zusätzliche Sondertilgungen "+
-   "fortgeschrieben.",
-   "notice"
-  ));
- }
-
- if(!mortgageItems().length){
-  summary.append(node("div",
-   "Hinweis: Eine eindeutig erkennbare "+
-   "Darlehensrate wurde in den "+
-   "regelmäßigen Ausgaben nicht gefunden. "+
-   "Die Rate wird deshalb in der "+
-   "Liquiditätsrechnung zusätzlich "+
-   "berücksichtigt. Bitte prüfen, "+
-   "ob sie unter einem anderen Namen "+
-   "bereits erfasst ist.",
-   "notice"
-  ));
- }
-
- root.append(table(
+ root.append(htmlTable(
   [
-   "Stichtag",
-   "Verfügbar über Reserve",
+   "Juli-Stichtag",
+   "Verfügbar",
    "Sondertilgung",
-   "Restschuld nach Tilgung"
+   "Restschuld danach"
   ],
   rows.map(r=>[
    r.date,
@@ -2355,57 +2399,43 @@ function calculateMortgage(){
  ));
 
  if(!rows.length){
-  summary.append(node("p",
-   "Für den eingegebenen Darlehenszeitraum "+
-   "liegen noch keine Juli-Stichtage vor.",
-   "muted"
-  ));
+  showMessage(summary,
+   "Noch keine zukünftigen Juli-Stichtage "+
+   "innerhalb des Simulationszeitraums.");
  }
 }
 
-$("calculateMortgage").onclick=calculateMortgage;
+$("calculateMortgage").onclick=renderMortgage;
 
-/* =========================================
-   START
-   ========================================= */
+/* ========================================
+   STARTSEITE
+======================================== */
 
 function renderStart(){
  const root=$("startCards");
  root.replaceChildren();
 
- const b=budget(
-  $("budgetMonth").value||
-  today().slice(0,7)
- );
+ const month=$("budgetMonth").value||
+  today().slice(0,7);
 
- const values=[
-  [
-   "Bankkonten",
+ const b=budget(month);
+
+ for(const [label,value] of [
+  ["Bankkonten",
    balancesKnown()
-    ?euro(bankTotal()):"Unvollständig"
-  ],
-  [
-   "Kreditkarten",
-   euro(cardsDebt())
-  ],
-  [
-   "Netto-Liquidität",
+    ?euro(bankTotal()):"Unvollständig"],
+  ["Kreditkarten",euro(cardsDebt())],
+  ["Netto-Liquidität",
    balancesKnown()
     ?euro(bankTotal()-cardsDebt())
-    :"Unvollständig"
-  ],
-  [
-   "Monatsüberschuss",
-   euro(b.net)
-  ]
- ];
-
- for(const [name,value] of values){
-  const c=node("div",undefined,"card");
+    :"Unvollständig"],
+  ["Monatssaldo",euro(b.net)]
+ ]){
+  const c=make("div",undefined,"card");
 
   c.append(
-   node("div",name,"muted"),
-   node("div",value,"metric")
+   make("div",label,"muted"),
+   make("div",value,"metric")
   );
 
   root.append(c);
@@ -2414,40 +2444,13 @@ function renderStart(){
  const advice=$("startAdvice");
  advice.replaceChildren();
 
- if(!state.imported){
-  advice.append(node("p",
-   "Bitte deine bisherige "+
-   "JSON-Sicherung importieren."
-  ));
- }
+ if(!state.imported)
+  showMessage(advice,
+   "Bitte deine JSON-Sicherung importieren.");
 
- if(!balancesKnown()){
-  advice.append(node("p",
-   "Bitte alle vier Kontostände "+
-   "mit Stichtag erfassen."
-  ));
- }
-
- if(!commonAnchor()){
-  advice.append(node("p",
-   "Für die automatische Sondertilgung "+
-   "werden abgestimmte Kontostichtage "+
-   "benötigt."
-  ));
- }
-
- const overdraft=Object.values(
-  state.accounts
- ).some(a=>num(a.balance)<0);
-
- advice.append(node("p",
-  overdraft
-   ?"Mindestens ein Konto ist im Minus. "+
-    "Der Tagesgeld-Dauerauftrag bleibt deaktiviert."
-   :"Der Tagesgeld-Dauerauftrag bleibt "+
-    "bis zur Freigabe eines ausreichenden "+
-    "Liquiditätspuffers deaktiviert."
- ));
+ if(!balancesKnown())
+  showMessage(advice,
+   "Bitte alle vier Kontostände erfassen.");
 
  $("startBudget").textContent=
   "Einnahmen "+euro(b.income)+
@@ -2455,9 +2458,9 @@ function renderStart(){
   " · Saldo "+euro(b.net);
 }
 
-/* =========================================
-   EINSTELLUNGEN & IMPORT
-   ========================================= */
+/* ========================================
+   EINSTELLUNGEN UND SICHERUNG
+======================================== */
 
 $("saveSettings").onclick=()=>{
  state.settings.salaryDay=
@@ -2474,35 +2477,30 @@ $("importButton").onclick=async()=>{
  const file=$("importFile").files[0];
 
  if(!file){
-  alert("Bitte eine JSON-Datei auswählen.");
+  alert("Bitte JSON-Datei auswählen.");
   return;
  }
 
  try{
   const raw=JSON.parse(await file.text());
 
-  if(!raw||typeof raw!=="object"){
-   throw new Error("Ungültige JSON-Daten.");
-  }
+  if(!raw||typeof raw!=="object")
+   throw new Error("Ungültige JSON-Datei.");
 
-  const next=
-   raw.version>=50
-    ?normalize(raw)
-    :migrateOld(raw);
+  const next=raw.version>=50
+   ?normalize(raw)
+   :migrateOld(raw);
 
   if(!confirm(
-   "Die aktuellen Finanzkompass-Daten "+
-   "werden durch die importierten Daten "+
-   "ersetzt. Fortfahren?"
+   "Aktuelle Daten durch den Import ersetzen?"
   ))return;
 
   state=next;
   save();
+  renderAll();
 
   $("dataStatus").textContent=
    "Import erfolgreich: "+file.name;
-
-  renderAll();
 
  }catch(e){
   $("dataStatus").textContent=
@@ -2517,31 +2515,31 @@ $("exportButton").onclick=()=>{
  );
 
  const url=URL.createObjectURL(blob);
- const a=node("a");
+ const a=make("a");
 
  a.href=url;
  a.download=
-  "Finanzkompass_5_2_Backup_"+
+  "Finanzkompass_5_3_Backup_"+
   today()+".json";
 
  document.body.append(a);
  a.click();
  a.remove();
 
- setTimeout(()=>{
-  URL.revokeObjectURL(url);
- },1000);
+ setTimeout(()=>
+  URL.revokeObjectURL(url),1000
+ );
 };
 
-/* =========================================
-   NAVIGATION
-   ========================================= */
+/* ========================================
+   INITIALISIERUNG
+======================================== */
 
 function renderAll(){
  renderStart();
  renderAccounts();
  renderPlanning();
- renderGroupedItems();
+ renderGrouped();
  renderMortgageInputs();
 
  $("salaryDay").value=
@@ -2552,32 +2550,31 @@ function renderAll(){
 }
 
 function showTab(id){
- document.querySelectorAll(".tab").forEach(e=>
-  e.classList.toggle(
-   "active",e.id===id
-  )
- );
+ document.querySelectorAll(".tab")
+  .forEach(e=>{
+   e.classList.toggle(
+    "active",e.id===id
+   );
+  });
 
- document.querySelectorAll(
-  "nav button"
- ).forEach(e=>
-  e.classList.toggle(
-   "active",e.dataset.tab===id
-  )
- );
+ document.querySelectorAll("nav button")
+  .forEach(e=>{
+   e.classList.toggle(
+    "active",e.dataset.tab===id
+   );
+  });
 
  if(id==="start")renderStart();
  if(id==="konten")renderAccounts();
  if(id==="planung")renderPlanning();
  if(id==="immobilie")renderMortgageInputs();
- if(id==="daten")renderGroupedItems();
+ if(id==="daten")renderGrouped();
 }
 
-document.querySelectorAll(
- "nav button"
-).forEach(b=>{
- b.onclick=()=>showTab(b.dataset.tab);
-});
+document.querySelectorAll("nav button")
+ .forEach(b=>{
+  b.onclick=()=>showTab(b.dataset.tab);
+ });
 
 $("forecastFrom").value=today();
 $("forecastTo").value=addDays(today(),90);

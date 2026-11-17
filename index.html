@@ -35,7 +35,7 @@
 <section id="daten"><div class="card"><h2>JSON-Sicherung</h2><p>Exportdateien enthalten die tatsächliche Programmversion und einen Zeitstempel. Die Finanzdaten bleiben ausschließlich auf deinem Gerät, sofern du sie nicht selbst exportierst.</p><div class="row"><button class="primary" id="export">JSON-Sicherung herunterladen</button><label class="btn" for="importFile" style="margin:0;cursor:pointer">JSON-Sicherung importieren</label><input id="importFile" type="file" accept=".json,application/json" style="display:none"></div><p id="meta" class="muted"></p><p class="notice">Ein Import ersetzt den aktuellen lokalen Datenstand. Bitte vorher eine Sicherung exportieren. Unbekannte Felder der importierten JSON-Datei bleiben beim Export erhalten.</p></div><div class="card"><h2>Prüfhinweise</h2><div id="warnings"></div></div><div class="card"><h2>Lokale Daten</h2><button id="clear" class="danger">Lokale Daten löschen</button><p class="mini muted">Nur nach Bestätigung; heruntergeladene JSON-Dateien bleiben davon unberührt.</p></div></section>
 </main><footer>Finanzkompass <span id="footer-version"></span> · Rechenmodell, keine Bankanbindung</footer><script>
 'use strict';
-const VERSION=597, KEY='finanzkompass_v580', OLDKEY='finanzkompass_v571';
+const VERSION=599, KEY='finanzkompass_v580', OLDKEY='finanzkompass_v571';
 const APP_VERSION='v'+String(VERSION).split('').join('.');
 document.title='Finanzkompass '+APP_VERSION;
 document.getElementById('header-version').textContent=APP_VERSION;
@@ -95,9 +95,12 @@ function openHolidayYear(year){holidayEditingYear=year;let cfg=holidayYearSettin
 function keepPayment(cfg){let principal=Math.max(0,number(cfg.amount)),months=number(cfg.months),rate=number(cfg.annualRate)/1200;if(!Number.isInteger(months)||months<1||principal<=0||rate<0)return 0;return Math.round((rate===0?principal/months:principal*rate/(1-Math.pow(1+rate,-months)))*100)/100}
 function keepPaymentForMonth(cfg,elapsed){let payment=keepPayment(cfg);if(elapsed<0||elapsed>=number(cfg.months))return 0;if(elapsed<number(cfg.months)-1)return payment;let balance=number(cfg.amount),rate=number(cfg.annualRate)/1200;for(let i=0;i<elapsed;i++)balance=Math.max(0,Math.round((balance*(1+rate)-payment)*100)/100);return Math.max(0,Math.round(balance*(1+rate)*100)/100)}
 function baseEvents(from,to){let a=[],begin=from.slice(0,7),end=to.slice(0,7);for(let ym=begin;ym<=end;ym=monthAdd(ym,1)){
-for(let it of items()){let t=kind(it);if(t==='off'||t==='budget'||it.id==='cleaner'||!occurs(it,ym))continue;let v=amount(it,ym)*(income(it)?1:-1),acct=route(it);
+for(let it of items()){let t=kind(it);if(t==='off'||t==='budget'||it.id==='cleaner'||!occurs(it,ym))continue;
+ // Mietwagen-Jahresbudget ist ein Szenariobudget, keine zusätzliche eigenständige Buchung.
+ // Bei eigenem Auto entfällt es; während Mietwagenphasen erzeugt ausschließlich das Szenario die Kosten.
+ if(it.id==='rentalcar')continue;let v=amount(it,ym)*(income(it)?1:-1),acct=route(it);
  if(S.vehicle&&S.vehicle.scenario==='keep'&&it.id==='eqa'&&S.vehicle.keepFinance?.balloonDate){let end=S.vehicle.keepFinance.balloonDate;if(ym>end.slice(0,7)||ym===end.slice(0,7)&&Number(due(it)||31)>Number(end.slice(8)))continue;}
- if(S.vehicle&&S.vehicle.scenario!=='keep'){let vcfg=S.vehicle,sale=vcfg.switchMonth||'2027-02';if((it.id==='eqa'||it.id==='carins')&&ym>sale)continue;if(it.id==='rentalcar'||it.id==='parking')continue;}
+ if(S.vehicle&&S.vehicle.scenario!=='keep'){let vcfg=S.vehicle,sale=vcfg.switchMonth||'2027-02';if((it.id==='eqa'||it.id==='carins')&&ym>sale)continue;if(it.id==='parking')continue;}
 if(t==='consumption'){dailyConsumption(a,ym,acct,v,it.name,it.id);continue}
 let day=due(it);if(!day){pushEvent(a,monthEnd(ym),acct,v,it.name+' (Termin unbestätigt, Monatsansatz)',it.id,'fixed',{month:ym});continue}let date=ym+'-'+String(Math.min(day,+lastDay(ym))).padStart(2,'0');pushEvent(a,date,acct,v,it.name,it.id,'fixed')}
 let transferDate=firstBankDay(ym);for(let [acct,v,label] of [['sparkasse',number(S.transfers.sparkasse),'Sparkasse'],['gls02',number(S.transfers.gls02),'GLS 02 Budget']]){pushEvent(a,transferDate,'gls00',-v,'Umbuchung an '+label,'transfer-'+acct,'transfer');pushEvent(a,transferDate,acct,v,'Umbuchung von GLS 00','transfer-'+acct,'transfer')}
@@ -229,6 +232,11 @@ function renderItems(){
  $('itemEditor').querySelectorAll('[data-item-save]').forEach(b=>b.onclick=()=>{
   let id=b.dataset.itemSave,raw=$('item-amount-'+id).value;
   if(raw.trim()===''||!Number.isFinite(Number(raw))||Number(raw)<0)return status('Bitte einen gültigen Betrag eingeben.',true);
+  if(id!=='cleaner'){
+   const pendingMonth=$('item-change-month-'+id).value,pendingAmount=$('item-change-amount-'+id).value.trim();
+   if((pendingMonth||pendingAmount)&&(!/^\d{4}-(0[1-9]|1[0-2])$/.test(pendingMonth)||pendingAmount===''||!Number.isFinite(Number(pendingAmount))||Number(pendingAmount)<0))
+    return status('Betragsänderung: Bitte Startmonat (JJJJ-MM) und gültigen neuen Betrag eingeben.',true);
+  }
   if(id==='cleaner'){S.biweekly.cleaner.amount=Number(raw);S.biweekly.cleaner.account=$('item-acct-'+id).value;S.itemTypes.cleaner='fixed'}
   else{
    let start=$('item-start-'+id).value,end=$('item-end-'+id).value;
@@ -237,7 +245,18 @@ function renderItems(){
    let day=+$('item-day-'+id).value;if(day>=1&&day<=31)S.dueDays[id]=day;else delete S.dueDays[id];S.routes[id]=$('item-acct-'+id).value;
    let it=items().find(x=>x.id===id);S.schedules[id]={...(S.schedules[id]||{}),start:start||it?.start||'',end:end||'9999-12',frequency:S.schedules[id]?.frequency||it?.freq||'m'};
   }
-  save();status('Position gespeichert.');
+  // Eine vollständig eingegebene Betragsänderung gehört zum selben Speichervorgang.
+  // Unvollständige Angaben verhindern den Speichervorgang, statt still zu verschwinden.
+  if(id!=='cleaner'){
+   let from=$('item-change-month-'+id).value,rawChange=$('item-change-amount-'+id).value.trim();
+   if(from||rawChange){
+    if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(from)||rawChange===''||!Number.isFinite(Number(rawChange))||Number(rawChange)<0)
+     return status('Betragsänderung: Bitte Startmonat (JJJJ-MM) und gültigen neuen Betrag eingeben.',true);
+    let arr=(S.overrides[id]||[]).filter(x=>x.from!==from);
+    arr.push({from,amount:Number(rawChange)});arr.sort((a,b)=>a.from.localeCompare(b.from));S.overrides[id]=arr;
+   }
+  }
+  save();status('Position einschließlich Betragsänderungen gespeichert.');
  });
  $('budgetBurn').value=number(S.budget.monthlySpend);$('budgetMode').value=S.budget.mode||'monthly';$('newCostAccount').innerHTML=optionsAccounts('gls02');$('newCostDate').value||=iso(new Date());
  $('costEditor').innerHTML='<div class="compact-list">'+(S.customCosts||[]).map((c,i)=>'<div class="compact-entry"><div class="compact-main"><div class="compact-name">'+esc(c.name)+'</div><div class="compact-meta">'+esc(c.date||c.when)+' · '+esc(ACCTS[c.account]||c.account)+'</div></div><div class="compact-amount">'+euro(c.amount)+'</div><button class="icon-edit" data-delete-cost="'+i+'" title="Entfernen" aria-label="Einzelbuchung entfernen">×</button></div>').join('')+'</div>';

@@ -35,8 +35,8 @@
 <section id="daten"><div class="card"><h2>JSON-Sicherung</h2><p>Exportdateien enthalten die tatsächliche Programmversion und einen Zeitstempel. Die Finanzdaten bleiben ausschließlich auf deinem Gerät, sofern du sie nicht selbst exportierst.</p><div class="row"><button class="primary" id="export">JSON-Sicherung herunterladen</button><label class="btn" for="importFile" style="margin:0;cursor:pointer">JSON-Sicherung importieren</label><input id="importFile" type="file" accept=".json,application/json" style="display:none"></div><p id="meta" class="muted"></p><p class="notice">Ein Import ersetzt den aktuellen lokalen Datenstand. Bitte vorher eine Sicherung exportieren. Unbekannte Felder der importierten JSON-Datei bleiben beim Export erhalten.</p></div><div class="card"><h2>Prüfhinweise</h2><div id="warnings"></div></div><div class="card"><h2>Lokale Daten</h2><button id="clear" class="danger">Lokale Daten löschen</button><p class="mini muted">Nur nach Bestätigung; heruntergeladene JSON-Dateien bleiben davon unberührt.</p></div></section>
 </main><footer>Finanzkompass <span id="footer-version"></span> · Rechenmodell, keine Bankanbindung</footer><script>
 'use strict';
-const VERSION=599, KEY='finanzkompass_v580', OLDKEY='finanzkompass_v571';
-const APP_VERSION='v'+String(VERSION).split('').join('.');
+const VERSION=5100, KEY='finanzkompass_v580', OLDKEY='finanzkompass_v571';
+const APP_VERSION='v5.10.0';
 document.title='Finanzkompass '+APP_VERSION;
 document.getElementById('header-version').textContent=APP_VERSION;
 document.getElementById('footer-version').textContent=APP_VERSION;
@@ -161,16 +161,22 @@ function lastDay(ym){return daysIn(+ym.slice(0,4),+ym.slice(5,7))}
 function filteredEvents(to){let start=Object.values(S.accounts).map(a=>a.date).filter(Boolean).sort()[0]||iso(new Date());let all=events(start,to);return all.filter(e=>!S.completed[e.key])}
 function effective(e,account){let snap=S.accounts[account]||{},date=snap.date||'9999-12-31';if(e.date<=date)return 0;if(e.type!=='consumption')return e.value;let ym=e.month||e.date.slice(0,7);if(date.slice(0,7)!==ym)return e.value;let total=lastDay(ym),elapsed=+date.slice(8);return e.value*Math.max(0,total-elapsed)/total}
 function balancesAt(end,ev=filteredEvents(end)){let b={};for(let k of Object.keys(ACCTS))b[k]=number(S.accounts[k].balance);for(let e of ev)if(e.date<=end)b[e.account]+=effective(e,e.account);return b}
-function eventRows(acct,ym,ev){let from=ym+'-01',to=monthEnd(ym),snap=S.accounts[acct],prior=balancesAt(addDays(from,-1),ev)[acct],rows=[],running=prior;for(let e of ev){if(e.account!==acct||e.date<from||e.date>to)continue;let v=effective(e,acct);if(!v)continue;running+=v;rows.push({...e,effectiveValue:v,running})}return {prior,rows,end:running}}
+function eventRows(acct,ym,ev){
+ const from=ym+'-01',to=monthEnd(ym),prior=balancesAt(addDays(from,-1),ev)[acct],rows=[];
+ const byDate=new Map();for(const e of ev){if(e.account!==acct||e.date<from||e.date>to)continue;let v=effective(e,acct);if(!v)continue;byDate.set(e.date,(byDate.get(e.date)||0)+v)}
+ let running=prior;const endByDate=new Map();for(const [date,delta] of [...byDate].sort((a,b)=>a[0].localeCompare(b[0]))){running+=delta;endByDate.set(date,running)}
+ for(const e of ev){if(e.account!==acct||e.date<from||e.date>to)continue;let v=effective(e,acct);if(!v)continue;rows.push({...e,effectiveValue:v,running:endByDate.get(e.date)})}
+ return {prior,rows,end:running};
+}
 function monthLows(ym,ev){
  const from=ym+'-01',to=monthEnd(ym),out={},snapshots={};
  for(const k of Object.keys(ACCTS)){
   const snapshot=S.accounts[k],begin=snapshot.date>from?snapshot.date:from;
-  let running=balancesAt(begin,ev)[k],low=running,date=begin;
-  for(const e of ev){if(e.account!==k||e.date<=begin||e.date>to)continue;running+=effective(e,k);if(running<low-0.00001){low=running;date=e.date}}
+  let low=balancesAt(begin,ev)[k],date=begin;
+  const days=[...new Set(ev.filter(e=>e.account===k&&e.date>begin&&e.date<=to).map(e=>e.date))].sort();
+  for(const day of days){const v=balancesAt(day,ev)[k];if(v<low-0.00001){low=v;date=day}}
   out[k]={value:low,date};snapshots[k]=begin;
  }
- // Konsolidierter Tiefpunkt: gemeinsame Tagesachse, nicht Summe der individuellen Minima.
  const start=Object.values(snapshots).sort().at(-1),days=[start,...new Set(ev.filter(e=>e.date>start&&e.date<=to).map(e=>e.date))].sort();
  let total={value:Infinity,date:start};for(const day of days){let b=balancesAt(day,ev),v=Object.values(b).reduce((a,c)=>a+c,0);if(v<total.value){total={value:v,date:day}}}
  out.total=total;return out;
@@ -205,7 +211,7 @@ function renderItems(){
    const details=fixed?'alle 14 Tage · Montag · '+esc(ACCTS[S.biweekly.cleaner.account||'gls00']):
     (TYPES[t]||t)+' · '+timing+' · '+esc(ACCTS[route(it)]||'GLS 00')+endLabel;
    html+='<div class="compact-entry"><div class="compact-main"><div class="compact-name">'+esc(it.name)+'</div><div class="compact-meta">'+details+(changes.length?' · '+changes.length+' Betragsänderung(en)':'')+'</div></div><div class="compact-amount">'+euro(value)+'</div><button class="icon-edit" type="button" data-edit-item="'+id+'" aria-label="'+esc(it.name)+' bearbeiten" title="Bearbeiten">✎</button></div>';
-   html+='<div class="edit-panel" id="edit-item-'+id+'" hidden><div class="grid"><div><label>'+(fixed?'Betrag pro Besuch (€)':'Grundbetrag (€)')+'</label><input type="number" step="0.01" id="item-amount-'+id+'" value="'+(fixed?number(S.biweekly.cleaner.amount):number(Object.prototype.hasOwnProperty.call(S.values,it.id)?S.values[it.id]:it.base))+'"></div><div><label>Buchungsart</label><select id="item-type-'+id+'" '+(fixed?'disabled':'')+'>'+Object.entries(TYPES).map(([k,n])=>'<option value="'+k+'" '+(k===t?'selected':'')+'>'+n+'</option>').join('')+'</select></div><div><label>Zahlungstag (Pflicht bei fester Buchung)</label><input type="number" min="1" max="31" id="item-day-'+id+'" value="'+(day||'')+'" placeholder="unbestätigt" '+(fixed?'disabled':'')+'></div><div><label>Konto</label><select id="item-acct-'+id+'">'+optionsAccounts(fixed?(S.biweekly.cleaner.account||'gls00'):route(it))+'</select></div>';
+   html+='<div class="edit-panel" id="edit-item-'+id+'" hidden><div class="grid"><div><label>'+(fixed?'Betrag pro Besuch (€)':'Grundbetrag (€)')+'</label><input type="number" step="0.01" id="item-amount-'+id+'" value="'+(fixed?number(S.biweekly.cleaner.amount):number(Object.prototype.hasOwnProperty.call(S.values,it.id)?S.values[it.id]:it.base))+'"></div><div><label>Buchungsart</label><select id="item-type-'+id+'" '+(fixed||it.id.startsWith('loan-')?'disabled':'')+'>'+Object.entries(TYPES).map(([k,n])=>'<option value="'+k+'" '+(k===t?'selected':'')+'>'+n+'</option>').join('')+'</select></div><div><label>Zahlungstag (Pflicht bei fester Buchung)</label><input type="number" min="1" max="31" id="item-day-'+id+'" value="'+(day||'')+'" placeholder="unbestätigt" '+(fixed?'disabled':'')+'></div><div><label>Konto</label><select id="item-acct-'+id+'">'+optionsAccounts(fixed?(S.biweekly.cleaner.account||'gls00'):route(it))+'</select></div>';
    if(!fixed){html+='<div><label>Erste Rate / Beginn (Monat)</label><input type="month" id="item-start-'+id+'" value="'+esc(sch.start||'')+'"></div><div><label>Letzte Rate / Ende (einschließlich)</label><input type="month" id="item-end-'+id+'" value="'+esc(sch.end==='9999-12'?'':sch.end||'')+'"></div>'}
    html+='</div>';
    if(!fixed){
@@ -213,13 +219,33 @@ function renderItems(){
     html+='<div class="change-list">'+(changes.length?changes.map(o=>'<div class="change-row"><span>Ab '+esc(o.from)+': <b>'+euro(number(o.amount))+'</b></span><button type="button" data-remove-override="'+id+'" data-from="'+esc(o.from)+'" title="Änderung entfernen" aria-label="Betragsänderung ab '+esc(o.from)+' entfernen">×</button></div>').join(''):'<div class="small-note">Noch keine Änderungen hinterlegt.</div>')+'</div>';
     html+='<div class="grid" style="margin-top:9px"><div><label>Neuer Betrag ab (Monat)</label><input type="month" id="item-change-month-'+id+'"></div><div><label>Neuer Betrag (€)</label><input type="number" step="0.01" id="item-change-amount-'+id+'"></div></div><button type="button" data-add-override="'+id+'">+ Betragsänderung hinzufügen</button>';
    }
-   html+='<div class="row" style="margin-top:12px"><button class="primary" data-item-save="'+id+'">Speichern</button><button data-item-cancel="'+id+'">Abbrechen</button></div></div>';
+   html+='<div class="row" style="margin-top:12px"><button class="primary" data-item-save="'+id+'">Speichern</button><button data-item-cancel="'+id+'">Abbrechen</button>'+(g.id==='loans'&&it.id.startsWith('loan-')?'<button type="button" data-delete-loan="'+id+'">Kredit löschen</button>':'')+'</div></div>';
+  }
+  if(g.id==='loans'){
+   html+='<div class="compact-entry"><button type="button" data-new-loan>+ Kredit hinzufügen</button></div>';
+   html+='<div class="edit-panel" id="new-loan-form" hidden><div class="grid"><div><label>Bezeichnung</label><input id="loan-name" placeholder="z. B. PayPal Ratenzahlung"></div><div><label>Monatliche Rate (€)</label><input id="loan-amount" type="number" min="0.01" step="0.01"></div><div><label>Erster Ratenmonat</label><input id="loan-start" type="month"></div><div><label>Letzter Ratenmonat (einschließlich)</label><input id="loan-end" type="month"></div><div><label>Zahlungstag (1–31)</label><input id="loan-day" type="number" min="1" max="31"></div><div><label>Belastungskonto</label><select id="loan-account">'+optionsAccounts('gls00')+'</select></div></div><div class="row" style="margin-top:12px"><button type="button" class="primary" id="loan-create">Kredit speichern</button><button type="button" id="loan-cancel">Abbrechen</button></div></div>';
   }
   html+='</div></details>';
  }
  if(!S.groups.length)html='<p class="notice">Keine Finanzpositionen geladen. Bitte deine JSON-Sicherung unter „Daten“ importieren.</p>';
  $('itemEditor').innerHTML=html;
+ const loanForm=$('new-loan-form');if(loanForm){
+  $('itemEditor').querySelector('[data-new-loan]').onclick=()=>{loanForm.hidden=!loanForm.hidden};
+  $('loan-cancel').onclick=()=>{loanForm.hidden=true};
+  $('loan-create').onclick=()=>{
+   const name=$('loan-name').value.trim(),raw=$('loan-amount').value.trim(),start=$('loan-start').value,end=$('loan-end').value,day=Number($('loan-day').value),account=$('loan-account').value;
+   if(!name||raw===''||!Number.isFinite(Number(raw))||Number(raw)<=0||!/^\d{4}-(0[1-9]|1[0-2])$/.test(start)||!/^\d{4}-(0[1-9]|1[0-2])$/.test(end)||end<start||!Number.isInteger(day)||day<1||day>31||!ACCTS[account])return status('Bitte Bezeichnung, positive Rate, gültige Ratenmonate, Zahlungstag und Konto angeben.',true);
+   const existing=new Set(items().map(x=>x.id));let id;do{id='loan-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,10)}while(existing.has(id));
+   const group=S.groups.find(g=>g.id==='loans');if(!group)return status('Kategorie Konsumentenkredite nicht gefunden.',true);
+   group.items.push([id,name,Number(raw),'m',start,end]);S.itemTypes[id]='fixed';S.schedules[id]={start,end,frequency:'m'};S.dueDays[id]=day;S.routes[id]=account;S.values[id]=Number(raw);save();status('Kredit angelegt. Über ✎ können Betragsänderungen ergänzt werden.');
+  };
+ }
  $('itemEditor').querySelectorAll('[data-edit-item]').forEach(b=>b.onclick=()=>{let box=$('edit-item-'+b.dataset.editItem);box.hidden=!box.hidden});
+ $('itemEditor').querySelectorAll('[data-delete-loan]').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.deleteLoan,group=S.groups.find(g=>g.id==='loans');if(!group||!id.startsWith('loan-')||!confirm('Diesen Konsumentenkredit und seine geplanten Raten wirklich löschen?'))return;
+  group.items=group.items.filter(z=>(Array.isArray(z)?z[0]:z.id)!==id);
+  for(const key of ['values','schedules','overrides','dueDays','routes','itemTypes'])delete S[key][id];save();status('Kredit gelöscht.');
+ });
  $('itemEditor').querySelectorAll('[data-item-cancel]').forEach(b=>b.onclick=()=>{$('edit-item-'+b.dataset.itemCancel).hidden=true});
  $('itemEditor').querySelectorAll('[data-add-override]').forEach(b=>b.onclick=()=>{
   let id=b.dataset.addOverride,from=$('item-change-month-'+id).value,raw=$('item-change-amount-'+id).value;
@@ -241,7 +267,7 @@ function renderItems(){
   else{
    let start=$('item-start-'+id).value,end=$('item-end-'+id).value;
    if(start&&end&&end<start)return status('Die letzte Rate darf nicht vor der ersten Rate liegen.',true);
-   S.values[id]=Number(raw);S.itemTypes[id]=$('item-type-'+id).value;
+   S.values[id]=Number(raw);S.itemTypes[id]=id.startsWith('loan-')?'fixed':$('item-type-'+id).value;
    let day=+$('item-day-'+id).value;if(day>=1&&day<=31)S.dueDays[id]=day;else delete S.dueDays[id];S.routes[id]=$('item-acct-'+id).value;
    let it=items().find(x=>x.id===id);S.schedules[id]={...(S.schedules[id]||{}),start:start||it?.start||'',end:end||'9999-12',frequency:S.schedules[id]?.frequency||it?.freq||'m'};
   }

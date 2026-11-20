@@ -36,7 +36,7 @@
 </main><footer>Finanzkompass <span id="footer-version"></span> · Rechenmodell, keine Bankanbindung</footer><script>
 'use strict';
 const VERSION=5100, KEY='finanzkompass_v580', OLDKEY='finanzkompass_v571';
-const APP_VERSION='v5.10.0';
+const APP_VERSION='v5.10.1';
 document.title='Finanzkompass '+APP_VERSION;
 document.getElementById('header-version').textContent=APP_VERSION;
 document.getElementById('footer-version').textContent=APP_VERSION;
@@ -158,7 +158,31 @@ function events(from,to){
  return raw.concat(plan.events.filter(e=>e.date>=from&&e.date<=to)).sort((a,b)=>a.date.localeCompare(b.date)||a.account.localeCompare(b.account)||a.label.localeCompare(b.label));
 }
 function lastDay(ym){return daysIn(+ym.slice(0,4),+ym.slice(5,7))}
-function filteredEvents(to){let start=Object.values(S.accounts).map(a=>a.date).filter(Boolean).sort()[0]||iso(new Date());let all=events(start,to);return all.filter(e=>!S.completed[e.key])}
+// Prognostische Sparkassen-Dispotilgung: GLS-00-Guthaben UND geschuetzter GLS-Disporahmen.
+// Kein echter Bankauftrag; jeder Transfer ist auf beiden Konten betragsgleich.
+function addSparkasseDispoTransfers(source,to){
+ const all=source.slice(),limit=Math.max(0,number(S.accounts.gls00.dispo));
+ const start=Object.values(S.accounts).map(a=>a.date).filter(Boolean).sort().at(-1);
+ if(!start||!limit)return all;
+ const b=Object.fromEntries(Object.keys(ACCTS).map(k=>[k,number(S.accounts[k].balance)]));
+ const byDay=new Map();for(const e of source){if(e.date<=start||e.date>to)continue;let d=byDay.get(e.date);if(!d){d={gls00:0,gls01:0,gls02:0,sparkasse:0};byDay.set(e.date,d)}d[e.account]+=effective(e,e.account)}
+ const dates=[...byDay.keys()].sort();
+ for(let i=0;i<dates.length;i++){const date=dates[i];let delta=byDay.get(date);for(const k of Object.keys(b))b[k]+=delta[k];
+  if(b.sparkasse>=-0.005)continue;
+  // Schutz: niedrigster projizierter GLS-00-Tagesendsaldo der kommenden 30 Tage.
+  let projected=b.gls00,minimum=projected,until=addDays(date,30);
+  for(let j=i+1;j<dates.length&&dates[j]<=until;j++){projected+=byDay.get(dates[j]).gls00;minimum=Math.min(minimum,projected)}
+  const amount=Math.round(Math.max(0,Math.min(-b.sparkasse,minimum+limit))*100)/100;
+  if(amount<0.01)continue;
+  b.gls00-=amount;b.sparkasse+=amount;
+  // Weitere 30-Tage-Prognosen muessen den bereits vorgenommenen Transfer kennen.
+  const label='Sparkassen-Dispo · prognostische Umbuchung';
+  pushEvent(all,date,'gls00',-amount,label,'auto-sparkasse-dispo-'+date,'transfer');
+  pushEvent(all,date,'sparkasse',amount,label,'auto-sparkasse-dispo-'+date,'transfer');
+ }
+ return all.sort((a,b)=>a.date.localeCompare(b.date)||a.account.localeCompare(b.account)||a.label.localeCompare(b.label));
+}
+function filteredEvents(to){let start=Object.values(S.accounts).map(a=>a.date).filter(Boolean).sort()[0]||iso(new Date());let all=events(start,to).filter(e=>!S.completed[e.key]);return addSparkasseDispoTransfers(all,to)}
 function effective(e,account){let snap=S.accounts[account]||{},date=snap.date||'9999-12-31';if(e.date<=date)return 0;if(e.type!=='consumption')return e.value;let ym=e.month||e.date.slice(0,7);if(date.slice(0,7)!==ym)return e.value;let total=lastDay(ym),elapsed=+date.slice(8);return e.value*Math.max(0,total-elapsed)/total}
 function balancesAt(end,ev=filteredEvents(end)){let b={};for(let k of Object.keys(ACCTS))b[k]=number(S.accounts[k].balance);for(let e of ev)if(e.date<=end)b[e.account]+=effective(e,e.account);return b}
 function eventRows(acct,ym,ev){
@@ -346,7 +370,7 @@ function mortgageTable(){mortgageDirty=false;
   function move(date,from,to,amount){amount=Math.round(Math.max(0,amount)*100)/100;if(amount<0.01)return;b[from]-=amount;b[to]+=amount;transferLog.push({date,from,to,amount})}
   function rebalance(date){
    // Aus verfügbarem Guthaben zuerst Sparkassen-Dispo, dann GLS-00-Dispo tilgen.
-   if(b.sparkasse<0&&b.gls00>0)move(date,'gls00','sparkasse',Math.min(-b.sparkasse,available30(date,'gls00')));
+   // Sparkassen-Dispo-Ausgleich ist bereits einheitlich in filteredEvents enthalten.
    if(b.gls00<0&&b.sparkasse>0)move(date,'sparkasse','gls00',Math.min(-b.gls00,available30(date,'sparkasse')));
    if(b.sparkasse>=-0.005&&b.gls00>=-0.005){
     // GLS 01 darf erst wachsen, wenn beide Dispos ausgeglichen sind.

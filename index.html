@@ -35,8 +35,8 @@
 <section id="daten"><div class="card"><h2>JSON-Sicherung</h2><p>Exportdateien enthalten die tatsächliche Programmversion und einen Zeitstempel. Die Finanzdaten bleiben ausschließlich auf deinem Gerät, sofern du sie nicht selbst exportierst.</p><div class="row"><button class="primary" id="export">JSON-Sicherung herunterladen</button><label class="btn" for="importFile" style="margin:0;cursor:pointer">JSON-Sicherung importieren</label><input id="importFile" type="file" accept=".json,application/json" style="display:none"></div><p id="meta" class="muted"></p><p class="notice">Ein Import ersetzt den aktuellen lokalen Datenstand. Bitte vorher eine Sicherung exportieren. Unbekannte Felder der importierten JSON-Datei bleiben beim Export erhalten.</p></div><div class="card"><h2>Prüfhinweise</h2><div id="warnings"></div></div><div class="card"><h2>Lokale Daten</h2><button id="clear" class="danger">Lokale Daten löschen</button><p class="mini muted">Nur nach Bestätigung; heruntergeladene JSON-Dateien bleiben davon unberührt.</p></div></section>
 </main><footer>Finanzkompass <span id="footer-version"></span> · Rechenmodell, keine Bankanbindung</footer><script>
 'use strict';
-const VERSION=5100, KEY='finanzkompass_v580', OLDKEY='finanzkompass_v571';
-const APP_VERSION='v5.10.1';
+const VERSION=5102, KEY='finanzkompass_v580', OLDKEY='finanzkompass_v571';
+const APP_VERSION='v5.10.2';
 document.title='Finanzkompass '+APP_VERSION;
 document.getElementById('header-version').textContent=APP_VERSION;
 document.getElementById('footer-version').textContent=APP_VERSION;
@@ -158,27 +158,40 @@ function events(from,to){
  return raw.concat(plan.events.filter(e=>e.date>=from&&e.date<=to)).sort((a,b)=>a.date.localeCompare(b.date)||a.account.localeCompare(b.account)||a.label.localeCompare(b.label));
 }
 function lastDay(ym){return daysIn(+ym.slice(0,4),+ym.slice(5,7))}
-// Prognostische Sparkassen-Dispotilgung: GLS-00-Guthaben UND geschuetzter GLS-Disporahmen.
-// Kein echter Bankauftrag; jeder Transfer ist auf beiden Konten betragsgleich.
+// Prognostische Kontosteuerung nach Tagesendsalden; keine echten Bankauftraege.
+// Prioritaet: Sparkassen-Dispo, GLS-00-Dispo, danach Guthaben ueber Schwellen auf GLS 01.
+// GLS 02 bleibt Budgetkonto; nur der Ueberschuss oberhalb 10.000 EUR wird abgeschöpft.
 function addSparkasseDispoTransfers(source,to){
- const all=source.slice(),limit=Math.max(0,number(S.accounts.gls00.dispo));
- const start=Object.values(S.accounts).map(a=>a.date).filter(Boolean).sort().at(-1);
- if(!start||!limit)return all;
- const b=Object.fromEntries(Object.keys(ACCTS).map(k=>[k,number(S.accounts[k].balance)]));
- const byDay=new Map();for(const e of source){if(e.date<=start||e.date>to)continue;let d=byDay.get(e.date);if(!d){d={gls00:0,gls01:0,gls02:0,sparkasse:0};byDay.set(e.date,d)}d[e.account]+=effective(e,e.account)}
+ const all=source.slice(),keys=Object.keys(ACCTS),start=keys.map(k=>S.accounts[k].date).filter(Boolean).sort().at(-1);
+ if(!start)return all;
+ const b=Object.fromEntries(keys.map(k=>[k,number(S.accounts[k].balance)]));
+ const limit=Math.max(0,number(S.accounts.gls00.dispo));
+ const byDay=new Map();
+ for(const e of source){if(e.date<=start||e.date>to)continue;let d=byDay.get(e.date);if(!d){d={gls00:0,gls01:0,gls02:0,sparkasse:0};byDay.set(e.date,d)}d[e.account]+=effective(e,e.account)}
  const dates=[...byDay.keys()].sort();
- for(let i=0;i<dates.length;i++){const date=dates[i];let delta=byDay.get(date);for(const k of Object.keys(b))b[k]+=delta[k];
-  if(b.sparkasse>=-0.005)continue;
-  // Schutz: niedrigster projizierter GLS-00-Tagesendsaldo der kommenden 30 Tage.
-  let projected=b.gls00,minimum=projected,until=addDays(date,30);
-  for(let j=i+1;j<dates.length&&dates[j]<=until;j++){projected+=byDay.get(dates[j]).gls00;minimum=Math.min(minimum,projected)}
-  const amount=Math.round(Math.max(0,Math.min(-b.sparkasse,minimum+limit))*100)/100;
-  if(amount<0.01)continue;
-  b.gls00-=amount;b.sparkasse+=amount;
-  // Weitere 30-Tage-Prognosen muessen den bereits vorgenommenen Transfer kennen.
-  const label='Sparkassen-Dispo · prognostische Umbuchung';
-  pushEvent(all,date,'gls00',-amount,label,'auto-sparkasse-dispo-'+date,'transfer');
-  pushEvent(all,date,'sparkasse',amount,label,'auto-sparkasse-dispo-'+date,'transfer');
+ const cents=v=>Math.round(Math.max(0,v)*100)/100;
+ function move(date,from,dest,amount,label){amount=cents(amount);if(amount<.01)return;b[from]-=amount;b[dest]+=amount;
+  const id='auto-liquidity-'+date+'-'+from+'-'+dest;
+  pushEvent(all,date,from,-amount,label,id+'-out','transfer');pushEvent(all,date,dest,amount,label,id+'-in','transfer');
+ }
+ // Zukunftsreserve beruecksichtigt alle bekannten Nettozahlungen der kommenden 30 Tage.
+ function protectedExcess(i,account,floor){let projected=b[account],minimum=projected,until=addDays(dates[i],30);
+  for(let j=i+1;j<dates.length&&dates[j]<=until;j++){projected+=byDay.get(dates[j])[account];minimum=Math.min(minimum,projected)}
+  return cents(minimum-floor);
+ }
+ for(let i=0;i<dates.length;i++){
+  const date=dates[i],delta=byDay.get(date);for(const k of keys)b[k]+=delta[k];
+  // Erst den teureren Sparkassen-Dispo aus GLS 00 ausgleichen, ggf. unter Nutzung des GLS-Dispos.
+  if(b.sparkasse<-.005)move(date,'gls00','sparkasse',Math.min(-b.sparkasse,protectedExcess(i,'gls00',-limit)),'Sparkassen-Dispo · prognostischer Ausgleich');
+  // Verbleibende negative Girokonten mit vorhandenen Tagesgeldmitteln ausgleichen.
+  // Keine fiktive Tagesgeld-Kreditlinie, und keine Entnahme aus GLS 02.
+  if(b.sparkasse<-.005)move(date,'gls01','sparkasse',Math.min(-b.sparkasse,b.gls01),'Tagesgeld · Sparkassen-Dispo ausgleichen');
+  if(b.gls00<-.005)move(date,'gls01','gls00',Math.min(-b.gls00,b.gls01),'Tagesgeld · GLS-00-Dispo ausgleichen');
+  // Oberhalb von 1.000 EUR Giroguthaben auf Tagesgeld, aber mit 30-Tage-Schutz.
+  for(const acct of ['gls00','sparkasse'])if(b[acct]>1000.005)
+   move(date,acct,'gls01',Math.min(b[acct]-1000,protectedExcess(i,acct,1000)),'Tagesgeld · Giro-Ueberschuss');
+  // GLS 02 ist aus dem normalen Ausgleich ausgenommen; oberhalb 10.000 EUR abschöpfen.
+  if(b.gls02>10000.005)move(date,'gls02','gls01',Math.min(b.gls02-10000,protectedExcess(i,'gls02',10000)),'Tagesgeld · GLS-02-Ueberschuss');
  }
  return all.sort((a,b)=>a.date.localeCompare(b.date)||a.account.localeCompare(b.account)||a.label.localeCompare(b.label));
 }
